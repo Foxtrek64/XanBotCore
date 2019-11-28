@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{11A8E911-146D-4FC1-8848-F1EAA64A5453}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>XanBotCore</RootNamespace>
+    <AssemblyName>XanBotCore</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DSharpPlus, Version=4.0.0.635, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\XCRBot\packages\DSharpPlus.4.0.0-nightly-00635\lib\net45\DSharpPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="DSharpPlus.VoiceNext, Version=4.0.0.635, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\XCRBot\packages\DSharpPlus.VoiceNext.4.0.0-nightly-00635\lib\net45\DSharpPlus.VoiceNext.dll</HintPath>
+    </Reference>
+    <Reference Include="DSharpPlus.WebSocket.WebSocket4Net, Version=4.0.0.635, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\XCRBot\packages\DSharpPlus.WebSocket.WebSocket4Net.4.0.0-nightly-00635\lib\net45\DSharpPlus.WebSocket.WebSocket4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WebSocket4Net, Version=0.14.1.0, Culture=neutral, PublicKeyToken=eb4e154b696bf72a, processorArchitecture=MSIL">
+      <HintPath>..\..\XCRBot\packages\WebSocket4Net.0.14.1\lib\net45\WebSocket4Net.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CommandSystem\Commands\ArchonCommands\ArchonCommandCurrentContext.cs" />
+    <Compile Include="CommandSystem\Commands\ArchonCommands\ArchonCommandHelp.cs" />
+    <Compile Include="Exceptions\MalformedConfigDataException.cs" />
+    <Compile Include="Logging\IConsolePrintable.cs" />
+    <Compile Include="Permissions\PermissionRegistry.cs" />
+    <Compile Include="Utility\DiscordObjects\IEmbeddable.cs" />
+    <Compile Include="Utility\DiscordObjects\RoleUtility.cs" />
+    <Compile Include="Utility\ListExtensions.cs" />
+    <Compile Include="XanBotCoreSystem.cs" />
+    <Compile Include="CommandSystem\ArgumentSplitter.cs" />
+    <Compile Include="CommandSystem\Command.cs" />
+    <Compile Include="CommandSystem\CommandMarshaller.cs" />
+    <Compile Include="CommandSystem\Commands\ArchonCommands\ArchonCommand.cs" />
+    <Compile Include="CommandSystem\Commands\CommandArchonCommand.cs" />
+    <Compile Include="CommandSystem\Commands\CommandConfig.cs" />
+    <Compile Include="CommandSystem\Commands\CommandGetPerms.cs" />
+    <Compile Include="CommandSystem\Commands\CommandHelp.cs" />
+    <Compile Include="CommandSystem\Commands\CommandListHandlers.cs" />
+    <Compile Include="CommandSystem\Commands\CommandSetPerms.cs" />
+    <Compile Include="CommandSystem\Commands\CommandShutdown.cs" />
+    <Compile Include="DataPersistence\XConfiguration.cs" />
+    <Compile Include="DataPersistence\XFileHandler.cs" />
+    <Compile Include="Exceptions\ArchonCommandException.cs" />
+    <Compile Include="Exceptions\CommandException.cs" />
+    <Compile Include="Exceptions\NonSingularResultException.cs" />
+    <Compile Include="Logging\XanBotConsoleCore.cs" />
+    <Compile Include="Logging\XanBotLogger.cs" />
+    <Compile Include="PassiveHandlers\PassiveHandler.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServerRepresentation\BotContext.cs" />
+    <Compile Include="ServerRepresentation\VirtualBotContext.cs" />
+    <Compile Include="UserObjects\XanBotMember.cs" />
+    <Compile Include="Utility\DiscordObjects\Emojis.cs" />
+    <Compile Include="Utility\ResponseUtil.cs" />
+    <Compile Include="Utility\UserGetter.cs" />
+    <Compile Include="Utility\WebUtil.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
