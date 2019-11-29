@@ -15,11 +15,6 @@ namespace XanBotCore.PassiveHandlers {
 	public abstract class PassiveHandler {
 
 		/// <summary>
-		/// Whether or not this handler is secret. Secret handlers won't be shown in the passive handlers list via >> listhandlers
-		/// </summary>
-		public abstract bool Secret { get; }
-
-		/// <summary>
 		/// The name of this passive handler. Can be anything.
 		/// </summary>
 		public abstract string Name { get; }

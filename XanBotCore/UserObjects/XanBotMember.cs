@@ -12,7 +12,7 @@ using XanBotCore.ServerRepresentation;
 namespace XanBotCore.UserObjects {
 
 	/// <summary>
-	/// Represents a custom member object.
+	/// Represents a wrapped member object that offers some extra data such as permission level and the <see cref="BotContext"/> that this member exists in.
 	/// </summary>
 	public class XanBotMember {
 		/// <summary>

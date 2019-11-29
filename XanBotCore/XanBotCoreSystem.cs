@@ -61,6 +61,8 @@ namespace XanBotCore {
 		/// <param name="isTargettingWindows7">Whether or not this bot is running on Windows 7. This is necessary for some init code.</param>
 		/// <returns></returns>
 		public static async Task InitializeBotAsync(string botToken, bool createVoiceNextClient = false, bool isTargettingWindows7 = false) {
+			Console.ForegroundColor = ConsoleColor.Green;
+
 			if (IsDebugMode) {
 				XanBotLogger.WriteLine("§eInitializing in Debug Mode...");
 			} else {

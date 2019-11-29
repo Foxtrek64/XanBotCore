@@ -110,7 +110,7 @@ namespace XanBotCore.ServerRepresentation {
 		/// <summary>
 		/// Defines any code that needs to run when initializing this context.
 		/// </summary>
-		public virtual void PerformContextInitialization() { }
+		public virtual void AfterContextInitialized() { }
 
 		/// <summary>
 		/// Convert this <see cref="BotContext"/> to a string.
@@ -266,7 +266,7 @@ namespace XanBotCore.ServerRepresentation {
 				XanBotLogger.WriteDebugLine("Searching assembly [" + asm.GetName().Name + "] for BotContext instances...");
 				foreach (Type type in asm.GetTypes().Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(BotContext)) && myType != typeof(VirtualBotContext) && !myType.IsSubclassOf(typeof(VirtualBotContext)))) {
 					BotContext ctx = (BotContext)Activator.CreateInstance(type);
-					ctx.PerformContextInitialization();
+					ctx.AfterContextInitialized();
 					XanBotLogger.WriteDebugLine("§8Found and instantiated BotContext [" + type.Name + "].");
 				}
 			}
