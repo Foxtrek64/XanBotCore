@@ -108,9 +108,14 @@ namespace XanBotCore.ServerRepresentation {
 		public virtual PassiveHandler[] ContextSpecificHandlers { get; } = new PassiveHandler[0];
 
 		/// <summary>
+		/// The default permission level of users in this server.
+		/// </summary>
+		public virtual Dictionary<ulong, byte> DefaultUserPermissions { get; } = new Dictionary<ulong, byte>();
+
+		/// <summary>
 		/// Defines any code that needs to run when initializing this context.
 		/// </summary>
-		public virtual void AfterContextInitialized() { }
+		public virtual void AfterContextInitialization() { }
 
 		/// <summary>
 		/// Convert this <see cref="BotContext"/> to a string.
@@ -266,7 +271,7 @@ namespace XanBotCore.ServerRepresentation {
 				XanBotLogger.WriteDebugLine("Searching assembly [" + asm.GetName().Name + "] for BotContext instances...");
 				foreach (Type type in asm.GetTypes().Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(BotContext)) && myType != typeof(VirtualBotContext) && !myType.IsSubclassOf(typeof(VirtualBotContext)))) {
 					BotContext ctx = (BotContext)Activator.CreateInstance(type);
-					ctx.AfterContextInitialized();
+					ctx.AfterContextInitialization();
 					XanBotLogger.WriteDebugLine("§8Found and instantiated BotContext [" + type.Name + "].");
 				}
 			}
