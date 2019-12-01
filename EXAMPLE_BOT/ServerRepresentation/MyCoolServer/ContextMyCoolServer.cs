@@ -26,10 +26,17 @@ namespace EXAMPLE_BOT.ServerRepresentation.MyCoolServer {
 		public override Command[] ContextSpecificCommands => new Command[] {
 			new CommandSayHello()
 		};
+
 		public override PassiveHandler[] ContextSpecificHandlers => new PassiveHandler[] {
 			new HandlerYouCantSayTheNWord()
 		};
-		public override void AfterContextInitialized() {
+
+		// Ensures that the users (ulong keys) have the specified permission level (byte value) when their member is instantiated for this server.
+		public override Dictionary<ulong, byte> DefaultUserPermissions => new Dictionary<ulong, byte>() {
+			[694201337] = 0,
+		};
+
+		public override void AfterContextInitialization() {
 			XanBotLogger.WriteLine("Wow, my cool context finished initializing!");
 		}
 	}
