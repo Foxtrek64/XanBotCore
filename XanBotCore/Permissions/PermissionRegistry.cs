@@ -16,13 +16,17 @@ namespace XanBotCore.Permissions {
 	/// </summary>
 	public class PermissionRegistry {
 
+		
+
 		private static readonly Dictionary<BotContext, Dictionary<ulong, byte>> PermissionsInContext = new Dictionary<BotContext, Dictionary<ulong, byte>>();
 
-
-		private static bool AllowXanInternal = true;
+		/// <summary>
+		/// The user ID of the bot's creator.
+		/// </summary>
+		public const ulong BOT_CREATOR_ID = 114163433980559366;
 
 		/// <summary>
-		/// If this is true (which it is by default), the bot's creator will have the maximum permission level, 255.<para/>
+		/// If this is true, the bot's creator will have the maximum permission level, 255. The default value for this parameter is FALSE.<para/>
 		/// Since this is your bot and you should be able to dictate security, this is under a boolean so that you may set it to false if needed.<para/>
 		/// Throws an <see cref="InvalidOperationException"/> if this is set after the bot has been initialized, as the member object may have already been created with the permission level.
 		/// </summary>
@@ -31,10 +35,11 @@ namespace XanBotCore.Permissions {
 				return AllowXanInternal;
 			}
 			set {
-				if (XanBotCoreSystem.Created) throw new InvalidOperationException("Cannot set this value after bot initialization (it does not ensure that the permission value hasn't been set already). Set this value before calling XanBotCoreSystem.InitializeBotAsync()");
-				AllowXanInternal = false;
+				if (XanBotCoreSystem.Created) throw new InvalidOperationException("Cannot set this value after bot initialization. Set this value before calling XanBotCoreSystem.InitializeBotAsync()");
+				AllowXanInternal = value;
 			}
 		}
+		private static bool AllowXanInternal = false;
 
 		/// <summary>
 		/// The permission level that represents a user who is not a member of the current guild.<para/>
@@ -85,10 +90,19 @@ namespace XanBotCore.Permissions {
 		public const byte PERMISSION_LEVEL_BACKEND_CONSOLE = 255;
 
 		/// <summary>
-		/// The default permission level of all member objects.<para/>
-		/// Any members that have their permission level set to this value will not be stored in data persistence by this code.
+		/// The default permission level of all member objects. Any members that have their permission level set to this value will not be stored in data persistence by this code.<para/>
+		/// Throws an <see cref="InvalidOperationException"/> if this is set after the bot has been initialized, as references to commands may have the old value stored in them.
 		/// </summary>
-		public static byte DefaultPermissionLevel { get; set; } = PERMISSION_LEVEL_STANDARD_USER;
+		public static byte DefaultPermissionLevel {
+			get {
+				return DefaultPermissionLevelInternal;
+			}
+			set {
+				if (XanBotCoreSystem.Created) throw new InvalidOperationException("Cannot set this value after bot initialization. Set this value before calling XanBotCoreSystem.InitializeBotAsync()");
+				DefaultPermissionLevelInternal = value;
+			}
+		}
+		private static byte DefaultPermissionLevelInternal = PERMISSION_LEVEL_STANDARD_USER;
 
 		/// <summary>
 		/// References the data store for user permissions and gets the user's associated permission level. Returns <see cref="DefaultPermissionLevel"/> if the value does not exist.
@@ -100,7 +114,22 @@ namespace XanBotCore.Permissions {
 			XConfiguration cfg = XConfiguration.GetConfigurationUtility(context, "userPerms.permissions");
 			string permLvl = cfg.GetConfigurationValue(userId.ToString(), DefaultPermissionLevel.ToString(), reloadConfigFile: true);
 			if (byte.TryParse(permLvl, out byte perms)) {
-				return perms;
+				// Catch case
+				byte returnValue = perms;
+				if (userId == BOT_CREATOR_ID && perms == 255 && !AllowXanInternal) {
+					XanBotLogger.WriteLine($"§4The permission level of the bot's creator for BotContext [{context.Name}] was going to be set to 255 due to its data persistence, but the boolean value allowing this has been disabled. The bot's creator has been set to use the baseline permission level ({DefaultPermissionLevel}) rather than 255.");
+					cfg.SetConfigurationValue(userId.ToString(), DefaultPermissionLevel.ToString());
+					returnValue = DefaultPermissionLevel;
+				}
+
+				if (context.DefaultUserPermissions.TryGetValue(userId, out byte contextPermissionLevel)) {
+					if (contextPermissionLevel == 255)
+						XanBotLogger.WriteDebugLine($"Note: The user [{userId}] has permission level 255 for BotContext [{context.Name}], which is intended for use in the backend console only. If any commands rely on 255 being console-only, this may cause problems!");
+					
+					returnValue = contextPermissionLevel;
+				}
+
+				return returnValue;
 			}
 			throw new MalformedConfigDataException("The data stored for the permission level of user [" + userId + "] is malformed. Reason: Could not cast " + permLvl + " into a byte.");
 		}
