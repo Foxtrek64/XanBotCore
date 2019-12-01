@@ -95,7 +95,7 @@ namespace XanBotCore.UserObjects {
 			try {
 				BaseUser = user;
 				Context = context;
-				if (PermissionRegistry.AllowXanMaxPermissionLevel && user.Id == 114163433980559366) {
+				if (PermissionRegistry.AllowXanMaxPermissionLevel && user.Id == PermissionRegistry.BOT_CREATOR_ID) {
 					XanBotLogger.WriteLine("§4Notice: A member object representing the bot's creator has been created in this server. PermissionRegistry.AllowXanMaxPermissionLevel is TRUE, which grants him permission level 255. Please set this value to FALSE and restart the bot if you do not want this to happen.");
 					PermissionLevelInternal = 255;
 				} else {
