@@ -88,6 +88,25 @@ namespace XanBotCore.CommandSystem.Commands {
 						return;
 					}
 				}
+				if (context.ContextSpecificCommands.Length > 0) {
+					foreach (Command cmd in context.ContextSpecificCommands) {
+						if (cmd.Name.ToLower() == command.ToLower()) {
+							int locatedGraves = 0;
+							foreach (char c in cmd.Syntax.ToCharArray()) {
+								if (c == '`') locatedGraves++;
+							}
+
+							string text;
+							if (locatedGraves % 2 != 0) {
+								text = string.Format("**Command:** `{0}` \n{1}\n\n**Usage:** `{2}", cmd.Name, cmd.Description, cmd.Syntax);
+							} else {
+								text = string.Format("**Command:** `{0}` \n{1}\n\n**Usage:** `{2}`", cmd.Name, cmd.Description, cmd.Syntax);
+							}
+							ResponseUtil.RespondTo(originalMessage, text);
+							return;
+						}
+					}
+				}
 				throw new CommandException(this, "Command `" + command + "` does not exist.");
 			}
 			else {
