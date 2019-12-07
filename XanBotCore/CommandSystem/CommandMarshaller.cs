@@ -156,7 +156,11 @@ namespace XanBotCore.CommandSystem {
 			}
 			if (execCommand != null) {
 				try {
-					execCommand.ExecuteCommand(null, null, null, args, text.Substring(command.Length));
+					string allArgsText = "";
+					if (args.Length > 0) {
+						allArgsText = text.Substring(command.Length + 1);
+					}
+					execCommand.ExecuteCommand(null, null, null, args, allArgsText);
 				} catch (CommandException commandErr) {
 					string message = string.Format("§cFailed to issue command \"{0}\": §1{1}", commandErr.Command.Name, commandErr.Message);
 					XanBotLogger.WriteLine(message);
@@ -228,8 +232,12 @@ namespace XanBotCore.CommandSystem {
 			if (execCommand != null) {
 				if (execCommand.CanUseCommand(member)) {
 					try {
+						string allArgsText = "";
+						if (args.Length > 0) {
+							allArgsText = text.Substring(command.Length + 1);
+						}
 						originalMessage.Channel.TriggerTypingAsync().GetAwaiter().GetResult();
-						execCommand.ExecuteCommand(commandContext, member, originalMessage, args, text.Substring(command.Length));
+						execCommand.ExecuteCommand(commandContext, member, originalMessage, args, allArgsText);
 						XanBotLogger.WriteLine(string.Format("User \"§6{0}§a\" issued command \"§6{1}§a\" with args {2}", member.FullName, command, ArrayToText(args)));
 					} catch (CommandException commandErr) {
 						string message = string.Format("§cFailed to issue command `{0}`: §1{1}", commandErr.Command.Name, commandErr.Message);
