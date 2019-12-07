@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using XanBotCore.Exceptions;
+using XanBotCore.Logging;
 using XanBotCore.UserObjects;
 
 namespace XanBotCore.Utility {
@@ -43,14 +44,15 @@ namespace XanBotCore.Utility {
 			string dataLower = data.ToLower();
 			foreach (DiscordUser user in server.Members.Values) {
 				XanBotMember member = XanBotMember.GetMemberFromUser(server, user);
-				string fullName = member.FullName.ToLower();
+				string fullName = member.FullName;
 				string nickName = member.Nickname ?? "";
+				if (nickName == "") 
+					nickName = fullName;
+
 				nickName = nickName.ToLower();
-				if (fullName.Length >= dataLower.Length && dataLower == fullName.Substring(0, dataLower.Length)) {
+				if (nickName.Length >= dataLower.Length && dataLower == nickName.Substring(0, dataLower.Length)) 
 					potentialReturns.Add(member);
-				} else if (nickName.Length >= dataLower.Length && dataLower == nickName.Substring(0, dataLower.Length)) {
-					potentialReturns.Add(member);
-				}
+				
 				// Do NOT break if there are multiple. This is necessary for the values in a potential NonSingularResultException
 			}
 			XanBotMember[] potentialReturnsArray = potentialReturns.ToArray();
