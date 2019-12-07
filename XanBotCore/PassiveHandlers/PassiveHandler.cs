@@ -12,7 +12,7 @@ namespace XanBotCore.PassiveHandlers {
 	/// <summary>
 	/// Represents a passive handler. Passive handlers are similar to commands, but are not run exclusively by a specific command.
 	/// </summary>
-	public abstract class PassiveHandler {
+	public abstract class PassiveHandler : IComparable<PassiveHandler> {
 
 		/// <summary>
 		/// The name of this passive handler. Can be anything.
@@ -36,5 +36,9 @@ namespace XanBotCore.PassiveHandlers {
 		/// A method that is run before bot shutdown. Use this method to save any necessary data and release any resources in use by the handler.
 		/// </summary>
 		public virtual void Dispose() { }
+
+		public int CompareTo(PassiveHandler other) {
+			return Name.CompareTo(other.Name);
+		}
 	}
 }
