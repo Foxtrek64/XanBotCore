@@ -174,6 +174,17 @@ namespace XanBotCore.UserObjects {
 			Member.RevokeRoleAsync(role, reason).GetAwaiter().GetResult();
 		}
 
+		/// <summary>
+		/// DM this user.
+		/// </summary>
+		/// <param name="message">The string message to send.</param>
+		/// <param name="embed">An optional embed to send.</param>
+		/// <returns></returns>
+		public async Task SendDMAsync(string message = null, DiscordEmbed embed = null) {
+			DiscordChannel dm = await Member.CreateDmChannelAsync();
+			await dm.SendMessageAsync(message, false, embed);
+		}
+
 	}
 
 	/// <summary>
