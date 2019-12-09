@@ -38,14 +38,16 @@ namespace XanBotCore.CommandSystem.Commands {
 					}
 					ResponseUtil.RespondTo(originalMessage, string.Format("The permission level of `{0}` is `{1}`", member.FullName, member.PermissionLevel));
 				}
-				catch (NonSingularResultException err) {
+				catch (NonSingularResultException<XanBotMember> err) {
 					string msg = err.Message;
 					msg += "\nThe potential users are:\n";
-					foreach (object obj in err.PotentialReturnValues) {
-						XanBotMember member = (XanBotMember)obj;
+					foreach (XanBotMember member in err.PotentialReturnValues) {
 						msg += member?.FullName + "(User GUID: " + member?.BaseUser.Id + ")\n";
 					}
 					msg += "\nYou can directly copy/paste the user's GUID into this command to get that specific user.";
+					if (msg.Length > 2000) {
+						msg = err.Message + "\n\nUnfortunately, the list of potential users was too large to fit into a message.";
+					}
 					ResponseUtil.RespondTo(originalMessage, msg);
 				}
 			}
