@@ -157,21 +157,50 @@ namespace XanBotCore.UserObjects {
 		}
 
 		/// <summary>
-		/// Grant the specified role to this member synchronously.
+		/// Grant the specified <see cref="DiscordRole"/> to this member synchronously.
 		/// </summary>
-		/// <param name="role"></param>
-		/// <param name="reason"></param>
+		/// <param name="role">The <see cref="DiscordRole"/> to give</param>
+		/// <param name="reason">The reason to provide in the audit log</param>
 		public void GrantRole(DiscordRole role, string reason = null) {
+			if (role == null) throw new ArgumentNullException("role");
 			Member.GrantRoleAsync(role, reason).GetAwaiter().GetResult();
 		}
 
 		/// <summary>
-		/// Remove the specified role from this member synchronously.
+		/// Remove the specified <see cref="DiscordRole"/> from this member synchronously.
 		/// </summary>
-		/// <param name="role"></param>
-		/// <param name="reason"></param>
+		/// <param name="role">The <see cref="DiscordRole"/> to take</param>
+		/// <param name="reason">The reason to provide in the audit log</param>
 		public void RemoveRole(DiscordRole role, string reason = null) {
+			if (role == null) throw new ArgumentNullException("role");
 			Member.RevokeRoleAsync(role, reason).GetAwaiter().GetResult();
+		}
+
+		/// <summary>
+		/// If the user does not have the specified <see cref="DiscordRole"/>, it will give it to them. Likewise, if the user DOES have the specified <see cref="DiscordRole"/>, it will take it from them.<para/>
+		/// Returns true if the user was given the role, and false if the role was taken away from the user.
+		/// </summary>
+		/// <param name="role">The <see cref="DiscordRole"/> to give or take</param>
+		/// <param name="reason">The reason to provide in the audit log</param>
+		public bool ToggleRole(DiscordRole role, string reason = null) {
+			if (role == null) throw new ArgumentNullException("role");
+			if (HasRole(role)) {
+				RemoveRole(role, reason);
+				return false;
+			} else {
+				GrantRole(role, reason);
+				return true;
+			}
+		}
+
+		/// <summary>
+		/// Returns whether or not this member has the specified <see cref="DiscordRole"/>
+		/// </summary>
+		/// <param name="role">The <see cref="DiscordRole"/> to look for</param>
+		/// <returns></returns>
+		public bool HasRole(DiscordRole role) {
+			if (role == null) throw new ArgumentNullException("role");
+			return Member.Roles.Contains(role);
 		}
 
 		/// <summary>
