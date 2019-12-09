@@ -68,12 +68,14 @@ namespace XanBotCore.Utility {
 				foreach (DiscordMember member in server.Members.Values) {
 					string fullName = member.Username + "#" + member.Discriminator;
 					string nickName = member.Nickname ?? "";
-					if (nickName == "")
-						nickName = fullName;
 
+					fullName = fullName.ToLower();
 					nickName = nickName.ToLower();
-					if (nickName.Length >= dataLower.Length && dataLower == nickName.Substring(0, dataLower.Length))
+					if (nickName.Length >= dataLower.Length && dataLower == nickName.Substring(0, dataLower.Length)) { 
 						potentialReturns.Add(XanBotMember.GetMemberFromUser(server, member));
+					} else if (fullName.Length >= dataLower.Length && dataLower == fullName.Substring(0, dataLower.Length)) {
+						potentialReturns.Add(XanBotMember.GetMemberFromUser(server, member));
+					}
 
 					// Do NOT break if there are multiple. This is necessary for the values in a potential NonSingularResultException
 				}
