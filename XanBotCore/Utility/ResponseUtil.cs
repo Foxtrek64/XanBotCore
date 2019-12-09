@@ -129,6 +129,49 @@ namespace XanBotCore.Utility {
 		}
 
 		/// <summary>
+		/// This method takes in a number of roles and a string message. The message is expected to contain a ping to the included roles by ID (Like so: &lt;@&amp;ID&gt;).<para/>
+		/// This method will enable pinging for the specified roles, send the message that pings said roles, and then disable pinging for the specified roles. This does NOT respect previous settings on the role regarding whether it is pingable or not.<para/>
+		/// Note: Attempt to use this method sparingly, as it makes two API calls per role which may cause throttling to occur if used in excess.
+		/// </summary>
+		/// <param name="targetChannel">The channel to send the message into.</param>
+		/// <param name="message">A message to accompany the pings with. This can be null if you want to only ping the roles.</param>
+		/// <param name="putWelcomingPrefix">If true, it attempts to add some feeling to the message (rather than a raw ping, it will say "Hey, role, role, and role!" followed by the message, if the message is not null)</param>
+		/// <param name="roles">The role or roles that will be pinged.</param>
+		/// <returns></returns>
+		public static async Task SendPingsInMessage(DiscordChannel targetChannel, string message, bool putWelcomingPrefix, params DiscordRole[] roles) {
+			foreach (DiscordRole role in roles) {
+				await role.ModifyAsync(mentionable: true, reason: "Call to SendPingsInMessage, role needs to be made temporarily pingable.");
+			}
+			string pingMsg = "";
+			if (putWelcomingPrefix) {
+				pingMsg = "Hey, ";
+				foreach (DiscordRole role in roles) {
+					if (role == roles.Last()) {
+						if (roles.Length > 1) {
+							pingMsg += "and <@&" + role.Id + ">!";
+						} else {
+							pingMsg += "<@&" + role.Id + ">!";
+						}
+					} else {
+						pingMsg += "<@&" + role.Id + ">, ";
+					}
+				}
+			} else {
+				foreach (DiscordRole role in roles) {
+					pingMsg += "<@&" + role.Id + "> ";
+				}
+			}
+			if (message != null && message != "") {
+				await targetChannel.SendMessageAsync(pingMsg + message);
+			} else {
+				await targetChannel.SendMessageAsync(pingMsg);
+			}
+			foreach (DiscordRole role in roles) {
+				await role.ModifyAsync(mentionable: false, reason: "Ping message sent. Role needs to be reset to non-pingable.");
+			}
+		}
+
+		/// <summary>
 		/// Removes all @everyone and @here pings by placing <see cref="INVISIBLE"/> between the @ and the text, causing the ping to not resolve.<para/>
 		/// If the text does not have any @everyone or @here in it, the message will remain unchanged.
 		/// </summary>
