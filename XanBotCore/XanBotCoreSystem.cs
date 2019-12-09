@@ -11,6 +11,7 @@ using XanBotCore.ServerRepresentation;
 using DSharpPlus.EventArgs;
 using XanBotCore.CommandSystem;
 using XanBotCore.Permissions;
+using System.Threading;
 
 namespace XanBotCore {
 
@@ -54,19 +55,25 @@ namespace XanBotCore {
 		}
 
 		/// <summary>
+		/// True if all of the data has finished downloading (when <see cref="DiscordClient.GuildDownloadCompleted"/> is fired, this is set to true).
+		/// </summary>
+		public static bool HasFinishedGettingGuildData { get; private set; } = false;
+
+		/// <summary>
 		/// Automatically creates <see cref="Client"/> and connects it, creates <see cref="VoiceClient"/> (if requested), instantiates all bot contexts automatically, starts the <see cref="XanBotConsoleCore"/> update loop, and binds the windows console CTRL+C/CTRL+BREAK to <see cref="Exit(int)>"/>
 		/// </summary>
 		/// <param name="botToken">The token of this discord bot.</param>
 		/// <param name="createVoiceNextClient">If true, <see cref="VoiceClient"/> will be instantiated and allow this bot to connect to voice channels.</param>
 		/// <param name="isTargettingWindows7">Whether or not this bot is running on Windows 7. This is necessary for some init code.</param>
+		/// <param name="yieldUntilGuildsDownloaded">If true, this task will yield until <see cref="DiscordClient.GuildDownloadCompleted"/> is fired.</param>
 		/// <returns></returns>
-		public static async Task InitializeBotAsync(string botToken, bool createVoiceNextClient = false, bool isTargettingWindows7 = false) {
+		public static async Task InitializeBotAsync(string botToken, bool createVoiceNextClient = false, bool isTargettingWindows7 = false, bool yieldUntilGuildsDownloaded = false) {
 			Console.ForegroundColor = ConsoleColor.Green;
 
 			if (IsDebugMode) {
 				XanBotLogger.WriteLine("§eInitializing in Debug Mode...");
 			} else {
-				XanBotLogger.WriteLine("Initializing...");
+				XanBotLogger.WriteLine("§2Initializing...");
 			}
 			if (isTargettingWindows7) {
 				Client = new DiscordClient(new DiscordConfiguration {
@@ -90,16 +97,16 @@ namespace XanBotCore {
 				XanBotLogger.WriteDebugLine("Created VoiceNextClient.");
 			}
 
-			XanBotLogger.WriteLine("Connecting to Discord...");
+			XanBotLogger.WriteLine("§2Connecting to Discord...");
 			await Client.ConnectAsync();
 
 			// Client is connected. Create contexts!
-			XanBotLogger.WriteLine("Initializing User-Defined Bot Contexts...");
+			XanBotLogger.WriteLine("§2Initializing User-Defined Bot Contexts...");
 			BotContextRegistry.InitializeAllContexts();
 
-			XanBotLogger.WriteLine("Connecting CommandMarshaller to chat events...");
+			XanBotLogger.WriteLine("§2Connecting CommandMarshaller to chat events...");
 #pragma warning disable CS1998
-			Client.MessageCreated += async (evt) => {
+			Client.MessageCreated += async evt => {
 				if (evt.Author == Client.CurrentUser) return;
 				if (evt.Author.IsBot) return;
 				if (CommandMarshaller.IsCommand(evt.Message.Content)) {
@@ -112,7 +119,22 @@ namespace XanBotCore {
 			};
 #pragma warning restore CS1998
 
-			XanBotLogger.WriteLine("Setting up console...");
+			if (yieldUntilGuildsDownloaded) {
+				XanBotLogger.WriteLine("§2Downloading server data from Discord...");
+				ManualResetEvent completedSignal = new ManualResetEvent(false);
+				Client.GuildDownloadCompleted += async evt => {
+					HasFinishedGettingGuildData = true;
+					completedSignal.Set();
+				};
+				completedSignal.WaitOne();
+				completedSignal.Reset();
+			} else {
+				Client.GuildDownloadCompleted += async evt => {
+					HasFinishedGettingGuildData = true;
+				};
+			}
+
+			XanBotLogger.WriteLine("§2Setting up frontend console...");
 			Console.CancelKeyPress += new ConsoleCancelEventHandler(OnCtrlCExit);
 			XanBotConsoleCore.StartUpdateConsoleTask();
 

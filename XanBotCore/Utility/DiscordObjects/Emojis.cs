@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XanBotCore.Logging;
 
 namespace XanBotCore.Utility.DiscordObjects {
 
@@ -26,6 +27,7 @@ namespace XanBotCore.Utility.DiscordObjects {
 	/// </summary>
 	public class ShallowEmoji {
 
+		private string EmojiNameInternal = null;
 		private ulong EmojiIdInternal = 0;
 
 		/// <summary>
@@ -35,14 +37,16 @@ namespace XanBotCore.Utility.DiscordObjects {
 			get {
 				return EmojiIdInternal;
 			}
-			set {
-				if (value != EmojiIdInternal) {
-					EmojiIdInternal = value;
-					EmojiInternal = null;
-				}
-			}
 		}
 
+		/// <summary>
+		/// The name of this emoji, including the :s
+		/// </summary>
+		public string EmojiName {
+			get {
+				return EmojiNameInternal;
+			}
+		}
 
 		private DiscordEmoji EmojiInternal = null;
 
@@ -54,13 +58,39 @@ namespace XanBotCore.Utility.DiscordObjects {
 		public DiscordEmoji Emoji {
 			get {
 				if (EmojiInternal == null) {
-					DiscordEmoji emoji = DiscordEmoji.FromGuildEmote(XanBotCoreSystem.Client, EmojiId);
-					EmojiInternal = emoji ?? throw new NullReferenceException("Attempt to create DiscordEmoji from ID " + EmojiId + " failed.");
+					if (EmojiIdInternal != 0) {
+						DiscordEmoji emoji = DiscordEmoji.FromGuildEmote(XanBotCoreSystem.Client, EmojiId);
+						EmojiInternal = emoji ?? throw new NullReferenceException("Attempt to create DiscordEmoji from ID " + EmojiId + " failed as the returned emoji was null.");
+					} else if (EmojiNameInternal != null) {
+						while (!XanBotCoreSystem.HasFinishedGettingGuildData) {
+							Task.Delay(500).GetAwaiter().GetResult(); // I told you it was nasty.
+						}
+						foreach (DiscordGuild server in XanBotCoreSystem.Client.Guilds.Values) {
+							foreach (DiscordEmoji e in server.Emojis.Values) {
+								XanBotLogger.WriteDebugLine($"Comparing emoji {e.Name} to {EmojiNameInternal}");
+								if (e.Name == EmojiNameInternal) {
+									XanBotLogger.WriteDebugLine("Got match!");
+									EmojiInternal = e;
+									EmojiIdInternal = e.Id;
+									return EmojiInternal;
+								}
+							}
+						}
+					} else {
+						throw new NullReferenceException("Attempted to create DiscordEmoji where the ID was 0 (presumed null) and the Name was null.");
+					}
 				}
 				return EmojiInternal;
 			}
 			set {
 				EmojiInternal = value;
+				if (value != null) {
+					EmojiNameInternal = value.Name;
+					EmojiIdInternal = value.Id;
+				} else {
+					EmojiNameInternal = null;
+					EmojiIdInternal = 0;
+				}
 			}
 		}
 
@@ -69,8 +99,17 @@ namespace XanBotCore.Utility.DiscordObjects {
 		/// </summary>
 		/// <param name="id">The Emoji ID</param>
 		public ShallowEmoji(ulong id) {
-			EmojiId = id;
+			EmojiIdInternal = id;
 			// Do NOT set Emoji here. There's a chance the Client may not have been set.
+		}
+
+		/// <summary>
+		/// Create a new ShallowEmoji from an Emoji Name including the :s. Example is :customEmoji:<para/>
+		/// This method is not advised since it has to search every guild's emojis by name, and referencing <see cref="Emoji"/> blocks the current thread if the guild information has not been completely downloaded.
+		/// </summary>
+		/// <param name="nameWithColons">The name of the emoji, including the surrounding :s</param>
+		public ShallowEmoji(string nameWithColons) {
+			EmojiNameInternal = nameWithColons;
 		}
 
 		/// <summary>
@@ -78,7 +117,7 @@ namespace XanBotCore.Utility.DiscordObjects {
 		/// </summary>
 		/// <param name="emoji">The existing DiscordEmoji</param>
 		public ShallowEmoji(DiscordEmoji emoji) {
-			EmojiId = emoji.Id;
+			EmojiIdInternal = emoji.Id;
 			Emoji = emoji;
 		}
 
