@@ -44,7 +44,7 @@ namespace XanBotCore.Exceptions {
 	/// <summary>
 	/// An exception that is thrown when there is not exclusively one return value possible from a function, for instance, in a function that is intended to get a user object from string.
 	/// </summary>
-	public class NonSingularResultException<T> : Exception {
+	public class NonSingularResultException<T> : NonSingularResultException {
 		/// <summary>
 		/// The message accompanying this NonSingularResultException.
 		/// </summary>
@@ -53,12 +53,12 @@ namespace XanBotCore.Exceptions {
 		/// <summary>
 		/// An array of the potential return values.
 		/// </summary>
-		public T[] PotentialReturnValues { get; }
+		public new T[] PotentialReturnValues { get; }
 
 		/// <summary>
 		/// An array of the potential return values, where each object has had its ToString method called.
 		/// </summary>
-		public string[] PotentialReturnValuesString { get; }
+		public new string[] PotentialReturnValuesString { get; }
 
 		public NonSingularResultException(string message = null, params T[] potentialReturnValues) {
 			Message = message;
