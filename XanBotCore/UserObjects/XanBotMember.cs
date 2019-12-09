@@ -214,6 +214,11 @@ namespace XanBotCore.UserObjects {
 			await dm.SendMessageAsync(message, false, embed);
 		}
 
+
+		public static implicit operator DiscordMember(XanBotMember src) {
+			return src.Member;
+		}
+
 	}
 
 	/// <summary>
