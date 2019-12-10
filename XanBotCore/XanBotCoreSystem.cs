@@ -117,7 +117,7 @@ namespace XanBotCore {
 					CommandMarshaller.RunPassiveHandlersForMessage(evt.Message);
 				}
 			};
-#pragma warning restore CS1998
+
 
 			if (yieldUntilGuildsDownloaded) {
 				XanBotLogger.WriteLine("§2Downloading server data from Discord...");
@@ -134,6 +134,7 @@ namespace XanBotCore {
 					HasFinishedGettingGuildData = true;
 				};
 			}
+#pragma warning restore CS1998
 
 			XanBotLogger.WriteLine("§2Setting up frontend console...");
 			Console.CancelKeyPress += new ConsoleCancelEventHandler(OnCtrlCExit);
