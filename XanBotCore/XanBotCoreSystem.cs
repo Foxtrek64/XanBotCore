@@ -76,6 +76,7 @@ namespace XanBotCore {
 		public static async Task InitializeBotAsync(string botToken, bool createVoiceNextClient = false, bool isTargettingWindows7 = false, bool yieldUntilGuildsDownloaded = false) {
 			Console.ForegroundColor = ConsoleColor.Green;
 
+			XanBotLogger.IsPathLocked = true;
 			if (IsDebugMode) {
 				XanBotLogger.WriteLine("§eInitializing in Debug Mode...");
 			} else {

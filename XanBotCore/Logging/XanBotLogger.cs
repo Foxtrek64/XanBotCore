@@ -14,16 +14,50 @@ namespace XanBotCore.Logging {
 	/// </summary>
 	public class XanBotLogger {
 
-		/// <summary>The time when this class is initialized into memory. Used for the log file name. This value does not change.</summary>
-		private static readonly string CURRENT_TIME = DateTime.UtcNow.ToFileTime().ToString();
+		/// <summary>
+		/// The time when this class is initialized into memory. Used for the log file name. This value does not change.
+		/// </summary>
+		private static readonly string CLASS_INIT_TIMESTAMP = DateTime.UtcNow.ToFileTime().ToString();
 
-		/// <summary>The current console log in a single string.</summary>
-		private static string Log = ""; // To do: Not do this, since having extremely long string buffers can get laggy.
+		/// <summary>
+		/// The folder that the log file is stored in as a string. Default value is .\ (current EXE directory).<para/>
+		/// This can only be set BEFORE calling <see cref="XanBotCoreSystem.InitializeBotAsync(string, bool, bool, bool)"/>. Attempting to set it after calling this will throw an <see cref="InvalidOperationException"/>
+		/// </summary>
+		public static string LogContainerFolder {
+			get {
+				return LogFilePathInternal;
+			}
+			set {
+				if (IsPathLocked) throw new InvalidOperationException("Cannot set the log file path after calling XanBotCoreSystem initialize method.");
+				LogFilePathInternal = value;
 
-		/// <summary>The symbol recognized in messages for color codes. This is identical to Minecraft's color code system. See https://minecraft.gamepedia.com/Formatting_codes#Color_codes</summary>
+				if (!LogFilePathInternal.EndsWith("\\")) {
+					LogFilePathInternal += "\\";
+				}
+			}
+		}
+		internal static string LogFilePathInternal = ".\\";
+		internal static bool IsPathLocked = false;
+
+		/// <summary>
+		/// The name of the current log file that this <see cref="XanBotLogger"/> is writing to.<para/>
+		/// This is equal to <see cref="LogContainerFolder"/> + "logfile-" + <see cref="CLASS_INIT_TIMESTAMP"/> + ".log";
+		/// </summary>
+		public static string LogFilePath => LogContainerFolder + "logfile-" + CLASS_INIT_TIMESTAMP + ".log";
+
+		/// <summary>
+		/// The current console log in a single string.
+		/// </summary>
+		private static string Log = "";
+
+		/// <summary>
+		/// The symbol recognized in messages for color codes. This is identical to Minecraft's color code system. See https://minecraft.gamepedia.com/Formatting_codes#Color_codes
+		/// </summary>
 		public static readonly char COLOR_CODE_SYM = '§';
 
-		/// <summary>A map of byte code values to ConsoleColors</summary>
+		/// <summary>
+		/// A map of byte code values to ConsoleColors
+		/// </summary>
 		public static readonly IReadOnlyDictionary<byte, ConsoleColor> ConsoleColorMap = new Dictionary<byte, ConsoleColor> {
 			[0] = ConsoleColor.Black,
 			[1] = ConsoleColor.DarkBlue,
@@ -168,14 +202,12 @@ namespace XanBotCore.Logging {
 		}
 
 		/// <summary>
-		/// Write the currently cached program log to the log file at <paramref name="dir"/>, or the current log file if null.
+		/// Write the currently cached program log to the file at <paramref name="path"/>, or the current log file if the path parameter is null.
 		/// </summary>
-		/// <param name="dir">A file path for a log file. This should ideally be a text document with the .log extension.</param>
-		public static void WriteLogFile(string dir = null) {
-			if (dir == null) {
-				dir = ".\\latest-" + CURRENT_TIME + ".log";
-			}
-			Stream logFileStream = File.AppendText(dir).BaseStream;
+		/// <param name="path">A file path for a log file. This should ideally be a text document with the .log extension.</param>
+		public static void WriteLogFile(string path = null) {
+			path = path ?? LogFilePath;
+			Stream logFileStream = File.AppendText(path).BaseStream;
 			char[] chars = Log.ToCharArray();
 			logFileStream.Write(Encoding.UTF8.GetBytes(chars), 0, chars.Length);
 			logFileStream.Close();
@@ -202,9 +234,7 @@ namespace XanBotCore.Logging {
 		/// <param name="path"></param>
 		/// <returns></returns>
 		public static FileStream GetLatestLogFileStream(string path = null) {
-			if (path == null) {
-				path = ".\\latest-" + CURRENT_TIME + ".log";
-			}
+			path = path ?? LogFilePath;
 			return File.OpenRead(path);
 		}
 	}
