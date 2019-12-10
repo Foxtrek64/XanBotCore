@@ -24,6 +24,12 @@ namespace XanBotCore {
 		private static VoiceNextExtension VoiceClientInternal = null;
 
 		/// <summary>
+		/// Runs when the bot is shutting down, before connections to Discord have been terminated.
+		/// </summary>
+		public static event ShutdownEvent OnBotShuttingDown;
+		public delegate void ShutdownEvent();
+
+		/// <summary>
 		/// Whether or not the core has been instantiated and certain core values like <see cref="Client"/> exist.
 		/// </summary>
 		public static bool Created { get; private set; }
@@ -164,10 +170,22 @@ namespace XanBotCore {
 			XanBotLogger.WriteLine("Bot shutdown requested. Tying up loose ends...");
 
 			PermissionRegistry.SaveAllUserPermissionsToFile();
+			PerformExitOperations();
 
 			XanBotLogger.WriteLine("Finalizing shutdown.");
 			Destroy();
 			Environment.Exit(code);
+		}
+
+
+
+		/// <summary>
+		/// Safely fires <see cref="OnBotShuttingDown"/>.
+		/// </summary>
+		private static void PerformExitOperations() {
+			try {
+				OnBotShuttingDown();
+			} catch (Exception) { }
 		}
 
 		/// <summary>
