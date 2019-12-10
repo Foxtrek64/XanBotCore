@@ -47,7 +47,7 @@ namespace XanBotCore.CommandSystem.Commands {
 					text += "\n";
 				}
 
-				if (context.ContextSpecificCommands.Length > 0) {
+				if (context != null && context.ContextSpecificCommands.Length > 0) {
 					text += "\nCommands specific to this server:\n\n";
 					foreach (Command cmd in context.ContextSpecificCommands) {
 						int spaces = 34;
