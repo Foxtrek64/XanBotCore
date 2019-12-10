@@ -59,6 +59,7 @@
     <Compile Include="Exceptions\MalformedConfigDataException.cs" />
     <Compile Include="Logging\IConsolePrintable.cs" />
     <Compile Include="Permissions\PermissionRegistry.cs" />
+    <Compile Include="UserObjects\DiscordUserExtensions.cs" />
     <Compile Include="Utility\DiscordObjects\IEmbeddable.cs" />
     <Compile Include="Utility\DiscordObjects\RoleUtility.cs" />
     <Compile Include="Utility\ListExtensions.cs" />
