@@ -171,9 +171,10 @@ namespace XanBotCore {
 			XanBotLogger.WriteLine("Bot shutdown requested. Tying up loose ends...");
 
 			PermissionRegistry.SaveAllUserPermissionsToFile();
-			PerformExitOperations();
 
 			XanBotLogger.WriteLine("Finalizing shutdown.");
+
+			PerformExitOperations();
 			Destroy();
 			Environment.Exit(code);
 		}
