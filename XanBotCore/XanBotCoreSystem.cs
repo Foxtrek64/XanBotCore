@@ -124,10 +124,11 @@ namespace XanBotCore {
 				ManualResetEvent completedSignal = new ManualResetEvent(false);
 				Client.GuildDownloadCompleted += async evt => {
 					HasFinishedGettingGuildData = true;
-					completedSignal.Set();
+					completedSignal?.Set();
 				};
 				completedSignal.WaitOne();
-				completedSignal.Reset();
+				completedSignal.Dispose();
+				completedSignal = null;
 			} else {
 				Client.GuildDownloadCompleted += async evt => {
 					HasFinishedGettingGuildData = true;
