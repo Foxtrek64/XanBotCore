@@ -86,6 +86,11 @@ namespace XanBotCore.UserObjects {
 		/// </summary>
 		public ulong Id => BaseUser.Id;
 
+		/// <summary>
+		/// A reference to <see cref="BaseUser"/>'s Mention property.
+		/// </summary>
+		public string Mention => BaseUser.Mention;
+
 
 		/// <summary>
 		/// Create a new XanBotMember from a DiscordUser. In standard cases this function would be impossible without a server reference, but this reference exists in the bot since it targets one server.
@@ -214,6 +219,23 @@ namespace XanBotCore.UserObjects {
 			await dm.SendMessageAsync(message, false, embed);
 		}
 
+		/// <summary>
+		/// Calls <see cref="ToString(DisplayType)"/> with an argument of <see cref="DiscordUserExtensions.DisplayType.UserId"/>
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString() {
+			return ToString(DisplayType.UserId);
+		}
+
+		/// <summary>
+		/// Calls the extension method provided by <see cref="DiscordUserExtensions"/>: <see cref="DiscordUserExtensions.GetFormattedUser(DiscordUser, DisplayType)"/><para/>
+		/// See <see cref="DisplayType"/> for more information.
+		/// </summary>
+		/// <param name="displayType"></param>
+		/// <returns></returns>
+		public string ToString(DisplayType displayType) {
+			return BaseUser.GetFormattedUser(displayType);
+		}
 
 		public static implicit operator DiscordMember(XanBotMember src) {
 			return src.Member;
