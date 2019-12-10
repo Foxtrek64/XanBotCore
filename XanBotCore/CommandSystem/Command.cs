@@ -35,7 +35,7 @@ namespace XanBotCore.CommandSystem {
 		public abstract byte RequiredPermissionLevel { get; }
 
 		/// <summary>
-		/// Returns true if the specified member can use the command.
+		/// Returns true if the specified member can use the command. The default behavior checks if <paramref name="member"/>.PermissionLevel is greater than or equal to this command's <see cref="RequiredPermissionLevel"/>.
 		/// </summary>
 		/// <param name="member">The member using this command.</param>
 		/// <returns>true if the specified member can use the command, false if they can not.</returns>
@@ -57,9 +57,13 @@ namespace XanBotCore.CommandSystem {
 
 		public int CompareTo(Command other) {
 			if (other == null) return 1;
-			int permComparison = RequiredPermissionLevel.CompareTo(other.RequiredPermissionLevel);
+			// Start by sorting via permission level.
+			// I'm returning math.sign so the value is always -1, 0, or 1 -- Certain stock CompareTo methods may return values at a wider range.
+			int permComparison = Math.Sign(RequiredPermissionLevel.CompareTo(other.RequiredPermissionLevel));
 			if (permComparison != 0) return permComparison;
-			return Name.CompareTo(other.Name);
+
+			// If the permission level is the same, sort alphabetically.
+			return Math.Sign(Name.CompareTo(other.Name));
 		}
 	}
 }
