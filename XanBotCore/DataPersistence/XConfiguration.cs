@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XanBotCore.Exceptions;
 using XanBotCore.Logging;
 using XanBotCore.ServerRepresentation;
+using XanBotCore.Utility;
 
 namespace XanBotCore.DataPersistence {
 
@@ -37,6 +40,58 @@ namespace XanBotCore.DataPersistence {
 			BaseHandler = handler;
 			ConfigFileName = cfgFileName;
 			LoadConfigurationFile();
+		}
+
+
+		/// <summary>
+		/// Ambiguous variation of TryParse that attempts to work for any type.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="input"></param>
+		/// <returns></returns>
+		private static bool TryParse<T>(string input, out T value) {
+			try {
+				value = (T)TypeDescriptor.GetConverter(typeof(T)).ConvertFromString(input);
+				return true;
+			} catch {
+				value = default;
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Mandates the type of a config value by returning the value in the key as the specified type, or by writing the default value and returning the default value if the key is malformed or doesn't exist.<para/>
+		/// When tying a config value into a property, this method is suggested.<para/>
+		/// If you want to display an error message, consider using <see cref="GetAndMandateType{T}(string, T)"/>
+		/// </summary>
+		/// <typeparam name="T">The type of data that is desired.</typeparam>
+		/// <param name="configKey">The config key to search.</param>
+		/// <param name="defaultValue">The default value if the config key doesn't exist or if the data is malformed.</param>
+		public T TryGetType<T>(string configKey, T defaultValue) {
+			string v = GetConfigurationValue(configKey, defaultValue.ToString(), true, true);
+			T retn;
+			if (!TryParse(v, out retn)) {
+				retn = defaultValue;
+				SetConfigurationValue(configKey, defaultValue.ToString());
+			}
+			return retn;
+		}
+
+		/// <summary>
+		/// A stricter variation of <see cref="TryGetType{T}(string, T)"/> that throws a <see cref="MalformedConfigDataException"/> if the config value could not be cast into the target type.<para/>
+		/// If the data in the config key is unable to be cast into the target type, the default value will be written.
+		/// </summary>
+		/// <typeparam name="T">The type of data that is desired.</typeparam>
+		/// <param name="configKey">The config key to search.</param>
+		/// <param name="defaultValue">The default value if the config key doesn't exist or if the data is malformed.</param>
+		public void GetAndMandateType<T>(string configKey, T defaultValue, out T value) {
+			string v = GetConfigurationValue(configKey, defaultValue.ToString(), true, true);
+			if (!TryParse(v, out T retn)) {
+				SetConfigurationValue(configKey, defaultValue.ToString());
+				value = defaultValue;
+				throw new MalformedConfigDataException($"WARNING: Config key `{configKey}` attempted to read the value from the configuration file, but it failed! Reason: Could not cast `{v}` into type {typeof(T).Name}. It has been set to its default value of {defaultValue.ToString()}");
+			}
+			value = retn;
 		}
 
 		public delegate void ConfigValueChanged(BotContext context, string key, string oldValue, string newValue, bool valueJustCreated);
