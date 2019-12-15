@@ -26,7 +26,7 @@ namespace XanBotCore.Utility {
 		/// <param name="server">The Discord server to target.</param>
 		/// <param name="data">The query to get a XanBotMember from. This can be a ulong as a string, a user ping (&lt;@ulong&gt;), a server nickname, a username (or optionally username#discriminator)</param>
 		/// <returns></returns>
-		public static async Task<XanBotMember> GetMemberFromData(DiscordGuild server, string data) {
+		public static async Task<XanBotMember> GetMemberFromDataAsync(DiscordGuild server, string data) {
 			// Wait! If it's a ping, it will start with <@ and end with >
 			string newdata = data;
 			if (data.StartsWith("<@") && data.EndsWith(">")) {
@@ -92,11 +92,11 @@ namespace XanBotCore.Utility {
 		}
 
 		/// <summary>
-		/// Strictly gets a user from their user ID. Unlike <see cref="GetMemberFromData(DiscordGuild, string)"/>, this code will return null if a name or discriminator is passed in.
+		/// Strictly gets a user from their user ID. Unlike <see cref="GetMemberFromDataAsync(DiscordGuild, string)"/>, this code will return null if a name or discriminator is passed in.
 		/// </summary>
 		/// <param name="data">The query to get a XanBotMember from. This can either be a ulong as a string or a user ping (&lt;@ulong&gt;)</param>
 		/// <returns></returns>
-		public static async Task<XanBotMember> GetMemberFromDataIDStrict(DiscordGuild server, string data) {
+		public static async Task<XanBotMember> GetMemberFromDataIDStrictAsync(DiscordGuild server, string data) {
 			string newdata = data;
 			if (data.StartsWith("<@") && data.EndsWith(">")) {
 				newdata = data.Substring(2, data.Length - 3);

@@ -15,9 +15,9 @@ namespace EXAMPLE_BOT.ServerRepresentation.MyCoolServer.PassiveHandlers {
 
 		public override string Description => "Responds to people who threaten to say the N word.";
 
-		public override bool RunHandler(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage) {
+		public override async Task<bool> RunHandlerAsync(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage) {
 			if (originalMessage.Content.ToLower().Contains("i'm gonna say the n word")) {
-				ResponseUtil.RespondTo(originalMessage, "THAT'S RACIST YOU CAN'T SAY THE N WORD!!!");
+				await ResponseUtil.RespondToAsync(originalMessage, "THAT'S RACIST YOU CAN'T SAY THE N WORD!!!");
 				return true; // We handled this message and don't want other handlers to intercept it.
 			}
 			return false; // We did not handle this message so we can allow other handlers to intercept it.

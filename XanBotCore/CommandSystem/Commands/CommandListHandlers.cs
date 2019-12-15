@@ -25,7 +25,7 @@ namespace XanBotCore.CommandSystem.Commands {
 
 		public override byte RequiredPermissionLevel { get; } = PermissionRegistry.PERMISSION_LEVEL_STANDARD_USER;
 
-		public override void ExecuteCommand(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
+		public override async Task ExecuteCommandAsync(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
 			if (args.Length == 0) {
 				string res = "```\n";
 				foreach (PassiveHandler handler in context.ContextSpecificHandlers) {
@@ -33,16 +33,16 @@ namespace XanBotCore.CommandSystem.Commands {
 					res += handler.Name + "\n";
 				}
 				res += "```";
-				ResponseUtil.RespondTo(originalMessage, res);
+				await ResponseUtil.RespondToAsync(originalMessage, res);
 			} else if (args.Length == 1) {
 				foreach (PassiveHandler handler in context.ContextSpecificHandlers) {
 					if (args[0].ToLower() == handler.Name.ToLower()) {
 						// Same thing as above: Prevent users from getting info on secret handlers unless the command is executed in the bot channel.
-						ResponseUtil.RespondTo(originalMessage, "**" + handler.Name + ":** " + handler.Description);
+						await ResponseUtil.RespondToAsync(originalMessage, "**" + handler.Name + ":** " + handler.Description);
 						return;
 					}
 				}
-				ResponseUtil.RespondTo(originalMessage, "There is no Passive Handler with the name " + args[0] + "\n(If there's a space in the name, try adding quotation marks around the name!)");
+				await ResponseUtil.RespondToAsync(originalMessage, "There is no Passive Handler with the name " + args[0] + "\n(If there's a space in the name, try adding quotation marks around the name!)");
 			}
 		}
 	}

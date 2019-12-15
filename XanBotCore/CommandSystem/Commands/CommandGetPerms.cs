@@ -25,18 +25,18 @@ namespace XanBotCore.CommandSystem.Commands {
 
 		public override byte RequiredPermissionLevel { get; } = PermissionRegistry.PERMISSION_LEVEL_STANDARD_USER;
 
-		public override void ExecuteCommand(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
+		public override async Task ExecuteCommandAsync(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
 			if (args.Length == 0) {
 				// User wants to get their own permissions.
-				ResponseUtil.RespondTo(originalMessage, string.Format("Your permission level is `{0}`", executingMember.PermissionLevel));
+				await ResponseUtil.RespondToAsync(originalMessage, string.Format("Your permission level is `{0}`", executingMember.PermissionLevel));
 			} else if (args.Length >= 1) {
 
 				try {
-					XanBotMember member = UserGetter.GetMemberFromData(context.Server, allArgs).GetAwaiter().GetResult();
+					XanBotMember member = await UserGetter.GetMemberFromDataAsync(context.Server, allArgs);
 					if (member == null) {
 						throw new CommandException(this, "The specified user is not a member of this server.");
 					}
-					ResponseUtil.RespondTo(originalMessage, string.Format("The permission level of `{0}` is `{1}`", member.FullName, member.PermissionLevel));
+					await ResponseUtil.RespondToAsync(originalMessage, string.Format("The permission level of `{0}` is `{1}`", member.FullName, member.PermissionLevel));
 				}
 				catch (NonSingularResultException<XanBotMember> err) {
 					string msg = err.Message;
@@ -48,7 +48,7 @@ namespace XanBotCore.CommandSystem.Commands {
 					if (msg.Length > 2000) {
 						msg = err.Message + "\n\nUnfortunately, the list of potential users was too large to fit into a message.";
 					}
-					ResponseUtil.RespondTo(originalMessage, msg);
+					await ResponseUtil.RespondToAsync(originalMessage, msg);
 				}
 			}
 			

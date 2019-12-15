@@ -72,14 +72,36 @@ namespace XanBotCore.UserObjects {
 		/// </summary>
 		public string FullName {
 			get {
-				return BaseUser.Username + "#" + BaseUser.Discriminator;
+				return Username + "#" + Discriminator;
 			}
 		}
+
+		/// <summary>
+		/// This user's username.
+		/// </summary>
+		public string Username => BaseUser.Username;
+
+		/// <summary>
+		/// This user's discriminator, not including the #.
+		/// </summary>
+		public string Discriminator => BaseUser.Discriminator;
 
 		/// <summary>
 		/// A reference to the underlying <see cref="DiscordMember.Nickname"/> property.
 		/// </summary>
 		public string Nickname => Member.Nickname;
+
+		/// <summary>
+		/// Returns <see cref="Nickname"/> if it is not empty nor null, and <see cref="Username"/> if it is.
+		/// </summary>
+		public string DisplayName {
+			get {
+				if (Nickname == default || Nickname == null || Nickname.Length == 0) {
+					return Username;
+				}
+				return Nickname;
+			}
+		}
 
 		/// <summary>
 		/// A reference to <see cref="BaseUser"/>'s ID.
@@ -172,6 +194,16 @@ namespace XanBotCore.UserObjects {
 		}
 
 		/// <summary>
+		/// Grant the specified <see cref="DiscordRole"/> to this member.
+		/// </summary>
+		/// <param name="role">The <see cref="DiscordRole"/> to give</param>
+		/// <param name="reason">The reason to provide in the audit log</param>
+		public async Task GrantRoleAsync(DiscordRole role, string reason = null) {
+			if (role == null) throw new ArgumentNullException("role");
+			await Member.GrantRoleAsync(role, reason);
+		}
+
+		/// <summary>
 		/// Remove the specified <see cref="DiscordRole"/> from this member synchronously.
 		/// </summary>
 		/// <param name="role">The <see cref="DiscordRole"/> to take</param>
@@ -179,6 +211,16 @@ namespace XanBotCore.UserObjects {
 		public void RemoveRole(DiscordRole role, string reason = null) {
 			if (role == null) throw new ArgumentNullException("role");
 			Member.RevokeRoleAsync(role, reason).GetAwaiter().GetResult();
+		}
+
+		/// <summary>
+		/// Remove the specified <see cref="DiscordRole"/> from this member.
+		/// </summary>
+		/// <param name="role">The <see cref="DiscordRole"/> to take</param>
+		/// <param name="reason">The reason to provide in the audit log</param>
+		public async Task RemoveRoleAsync(DiscordRole role, string reason = null) {
+			if (role == null) throw new ArgumentNullException("role");
+			await Member.RevokeRoleAsync(role, reason);
 		}
 
 		/// <summary>
@@ -194,6 +236,23 @@ namespace XanBotCore.UserObjects {
 				return false;
 			} else {
 				GrantRole(role, reason);
+				return true;
+			}
+		}
+
+		/// <summary>
+		/// If the user does not have the specified <see cref="DiscordRole"/>, it will give it to them. Likewise, if the user DOES have the specified <see cref="DiscordRole"/>, it will take it from them.<para/>
+		/// Returns true if the user was given the role, and false if the role was taken away from the user.
+		/// </summary>
+		/// <param name="role">The <see cref="DiscordRole"/> to give or take</param>
+		/// <param name="reason">The reason to provide in the audit log</param>
+		public async Task<bool> ToggleRoleAsync(DiscordRole role, string reason = null) {
+			if (role == null) throw new ArgumentNullException("role");
+			if (HasRole(role)) {
+				await RemoveRoleAsync(role, reason);
+				return false;
+			} else {
+				await GrantRoleAsync(role, reason);
 				return true;
 			}
 		}

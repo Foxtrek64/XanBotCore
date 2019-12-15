@@ -17,11 +17,11 @@ namespace XanBotCore.CommandSystem.Commands.ArchonCommands {
 
 		public override string Syntax => Name;
 
-		public override void ExecuteCommand(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
+		public override async Task ExecuteCommandAsync(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
 			if (context == null) throw new ArchonCommandException(this, "Cannot use currentcontext from the console, as it requires an instance of BotContext to be present.");
 			//ResponseUtil.RespondTo(originalMessage, context.ToStringForDiscordMessage());
 			//originalMessage?.RespondAsync(embed: context.ToEmbed());
-			ResponseUtil.RespondTo(originalMessage, context);
+			await ResponseUtil.RespondToAsync(originalMessage, context);
 		}
 	}
 }

@@ -24,12 +24,12 @@ namespace XanBotCore.CommandSystem.Commands {
 
 		public override byte RequiredPermissionLevel { get; } = PermissionRegistry.PERMISSION_LEVEL_OPERATOR;
 
-		public override void ExecuteCommand(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
+		public override async Task ExecuteCommandAsync(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
 			if (args.Length != 2) {
 				throw new CommandException(this, "Invalid argument count! Expected a user ID and a permission level.");
 			}
-			else { 
-				XanBotMember member = UserGetter.GetMemberFromDataIDStrict(context.Server, args[0]).GetAwaiter().GetResult();
+			else {
+				XanBotMember member = await UserGetter.GetMemberFromDataIDStrictAsync(context.Server, args[0]);
 				byte permLvl = byte.Parse(args[1]);
 				if (member == null) {
 					throw new CommandException(this, "The specified member could not be found. Are you searching by user ID?");
@@ -45,7 +45,7 @@ namespace XanBotCore.CommandSystem.Commands {
 					throw new CommandException(this, "You cannot edit the permission level of someone at a rank greater than or equal to your own.");
 				}
 				member.PermissionLevel = permLvl;
-				ResponseUtil.RespondTo(originalMessage, string.Format("Set the permission level of user `{0}` to `{1}`", member.FullName, permLvl.ToString()));
+				await ResponseUtil.RespondToAsync(originalMessage, string.Format("Set the permission level of user `{0}` to `{1}`", member.FullName, permLvl.ToString()));
 			}
 		}
 	}

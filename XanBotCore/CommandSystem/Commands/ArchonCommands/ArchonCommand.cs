@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.Entities;
 using System;
+using System.Threading.Tasks;
 using XanBotCore.ServerRepresentation;
 using XanBotCore.UserObjects;
 
@@ -32,7 +33,7 @@ namespace XanBotCore.CommandSystem.Commands.ArchonCommands {
 		/// <param name="originalMessage">The DiscordMessage that was responsible for invoking this command.</param>
 		/// <param name="args">The arguments of the command split via shell32.DLL's handling system.</param>
 		/// <param name="allArgs">Every argument passed into this command as its raw string. This is used to preserve quotes and other characters stripped by shell32.</param>
-		public abstract void ExecuteCommand(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs);
+		public abstract Task ExecuteCommandAsync(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs);
 
 		public int CompareTo(ArchonCommand other) {
 			if (other == null) return 1;

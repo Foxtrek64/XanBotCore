@@ -27,7 +27,7 @@ namespace XanBotCore.CommandSystem.Commands {
 
 		public override byte RequiredPermissionLevel { get; } = PermissionRegistry.PERMISSION_LEVEL_ADMINISTRATOR;
 
-		public override void ExecuteCommand(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
+		public override async Task ExecuteCommandAsync(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
 			if (args.Length == 0) {
 				throw new CommandException(this, "Invalid argument count. Expected at least one arg.");
 			}
@@ -35,7 +35,7 @@ namespace XanBotCore.CommandSystem.Commands {
 			args = args.Skip(1).ToArray();
 			foreach (ArchonCommand cmd in CommandMarshaller.ArchonCommands) {
 				if (cmd.Name.ToLower() == subCommand.ToLower()) {
-					cmd.ExecuteCommand(context, executingMember, originalMessage, args, allArgs);
+					await cmd.ExecuteCommandAsync(context, executingMember, originalMessage, args, allArgs);
 					return;
 				}
 			}

@@ -30,7 +30,7 @@ namespace XanBotCore.PassiveHandlers {
 		/// <param name="executingMember">The <see cref="XanBotMember"/> who will be executing this handler.</param>
 		/// <param name="originalMessage">The <see cref="DiscordMessage"/> the member sent.</param>
 		/// <returns></returns>
-		public abstract bool RunHandler(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage);
+		public abstract Task<bool> RunHandlerAsync(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage);
 
 		/// <summary>
 		/// A method that is run before bot shutdown. Use this method to save any necessary data and release any resources in use by the handler.

@@ -17,7 +17,7 @@ namespace XanBotCore.CommandSystem.Commands.ArchonCommands {
 
 		public override string Syntax => Name + " [archonCommandName]";
 
-		public override void ExecuteCommand(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
+		public override async Task ExecuteCommandAsync(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
 			if (args.Length == 0) {
 				string text = "Current Archon Commands:\n```\n";
 				foreach (ArchonCommand cmd in CommandMarshaller.ArchonCommands) {
@@ -25,13 +25,13 @@ namespace XanBotCore.CommandSystem.Commands.ArchonCommands {
 				}
 				text += "```\n";
 
-				ResponseUtil.RespondTo(originalMessage, text);
+				await ResponseUtil.RespondToAsync(originalMessage, text);
 			} else if (args.Length == 1) {
 				string command = args[0];
 				foreach (ArchonCommand cmd in CommandMarshaller.ArchonCommands) {
 					if (cmd.Name.ToLower() == command.ToLower()) {
 						string text = string.Format("**Archon Command:** `{0}` \n{1}\n\n**Usage:** `{2}`", cmd.Name, cmd.Description, cmd.Syntax);
-						ResponseUtil.RespondTo(originalMessage, text);
+						await ResponseUtil.RespondToAsync(originalMessage, text);
 						return;
 					}
 				}

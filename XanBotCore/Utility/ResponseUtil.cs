@@ -31,7 +31,7 @@ namespace XanBotCore.Utility {
 		/// <param name="forceWriteToConsole">If true, this text will be written to the console even if <paramref name="message"/> is not null.</param>
 		/// <param name="allowEveryoneAndHere">If true, any messages sent via this response can use @everyone and @here (This is false by default to prevent any commands that repeat user chats from being disruptive)</param>
 		/// <returns>The response message, if applicable. Will be null if <paramref name="message"/> is null.</returns>
-		public static DiscordMessage RespondTo(DiscordMessage message, string text, bool forceWriteToConsole = false, bool allowEveryoneAndHere = false) {
+		public static Task<DiscordMessage> RespondToAsync(DiscordMessage message, string text, bool forceWriteToConsole = false, bool allowEveryoneAndHere = false) {
 			// Most of the code here is recycled from my personal bot, e.g. the forceAllowMassPing boolean.
 			string msgText = text;
 			if (!allowEveryoneAndHere) msgText = StripMassPings(msgText);
@@ -41,7 +41,7 @@ namespace XanBotCore.Utility {
 					msgText = XanBotLogger.StripColorFormattingCode(text);
 				}
 
-				return message.RespondAsync(msgText).GetAwaiter().GetResult();
+				return message.RespondAsync(msgText);
 			}
 			if (forceWriteToConsole || message == null) {
 				text = text.Replace("```", ""); // There may be more stuff to do, but this just makes it better for display in the console.
@@ -57,8 +57,8 @@ namespace XanBotCore.Utility {
 		/// <param name="message">The <see cref="DiscordMessage"/> to respond to. If this is null, nothing will happen. </param>
 		/// <param name="response">The <see cref="DiscordEmbed"/> to respond with.</param>
 		/// <returns></returns>
-		public static DiscordMessage RespondTo(DiscordMessage message, DiscordEmbed response) {
-			if (message != null) return message.RespondAsync(embed: response).GetAwaiter().GetResult();
+		public static Task<DiscordMessage> RespondToAsync(DiscordMessage message, DiscordEmbed response) {
+			if (message != null) return message.RespondAsync(embed: response);
 			return null;
 		}
 
@@ -68,35 +68,8 @@ namespace XanBotCore.Utility {
 		/// <param name="message">The <see cref="DiscordMessage"/> to respond to. If this is null, nothing will happen. </param>
 		/// <param name="embeddableObject">The <see cref="IEmbeddable"/> that provides a <see cref="DiscordEmbed"/> to respond with.</param>
 		/// <returns></returns>
-		public static DiscordMessage RespondTo(DiscordMessage message, IEmbeddable embeddableObject) {
-			if (message != null) return message.RespondAsync(embed: embeddableObject.ToEmbed()).GetAwaiter().GetResult();
-			return null;
-		}
-
-		/// <summary>
-		/// Respond to the specified DiscordMessage in a different channel. If the message is null, it will write the response to the console. This offers cross-functionality between commands executed in a chat channel vs. commands executed in the console (where a DiscordMessage object won't exist)
-		/// </summary>
-		/// <param name="message">The DiscordMessage being responded to.</param>
-		/// <param name="channel">The DiscordChannel to send the response message to.</param>
-		/// <param name="text">The text to respond with.</param>
-		/// <param name="forceWriteToConsole">If true, this text will be written to the console even if <paramref name="message"/> is not null.</param>
-		/// <param name="allowEveryoneAndHere">If true, any messages sent via this response can use @everyone and @here (This is false by default to prevent any commands that repeat user chats from being disruptive)</param>
-		/// <returns>The response message, if applicable. Will be null if <paramref name="message"/> is null.</returns>
-		public static DiscordMessage RespondToIn(DiscordMessage message, DiscordChannel channel, string text, bool forceWriteToConsole = false, bool allowEveryoneAndHere = false) {
-			string msgText = text;
-			if (!allowEveryoneAndHere) msgText = StripMassPings(msgText);
-
-			if (message != null) {
-				if (XanBotLogger.MessageHasColors(text)) {
-					msgText = XanBotLogger.StripColorFormattingCode(text);
-				}
-
-				return channel.SendMessageAsync(msgText).GetAwaiter().GetResult();
-			}
-			if (forceWriteToConsole || message == null) {
-				text = text.Replace("```", ""); // There may be more stuff to do, but this just makes it better for display in the console.
-				XanBotLogger.WriteLine(text, HasMassPings(msgText));
-			}
+		public static Task<DiscordMessage> RespondToAsync(DiscordMessage message, IEmbeddable embeddableObject) {
+			if (message != null) return message.RespondAsync(embed: embeddableObject.ToEmbed());
 			return null;
 		}
 
@@ -109,14 +82,14 @@ namespace XanBotCore.Utility {
 		/// <param name="tryFormattingForConsole">If true, this will strip certain formatting information off of messages that won't work in the console, like ``` for code blocks.</param>
 		/// <param name="allowEveryoneAndHere">If true, any messages sent via this response can use @everyone and @here (This is false by default to prevent any commands that repeat user chats from being disruptive)</param>
 		/// <returns></returns>
-		public static DiscordMessage RespondIn(DiscordChannel channel, string text, bool forceWriteToConsole = false, bool tryFormattingForConsole = false, bool allowEveryoneAndHere = false) {
+		public static Task<DiscordMessage> RespondInAsync(DiscordChannel channel, string text, bool forceWriteToConsole = false, bool tryFormattingForConsole = false, bool allowEveryoneAndHere = false) {
 			if (!allowEveryoneAndHere) text = StripMassPings(text);
 
 			if (XanBotLogger.MessageHasColors(text)) {
 				text = XanBotLogger.StripColorFormattingCode(text);
 			}
 
-			DiscordMessage response = channel.SendMessageAsync(text).GetAwaiter().GetResult();
+			Task<DiscordMessage> responseTask = channel.SendMessageAsync(text);
 
 			if (forceWriteToConsole) {
 				if (tryFormattingForConsole) {
@@ -125,7 +98,7 @@ namespace XanBotCore.Utility {
 				XanBotLogger.WriteLine(text, HasMassPings(text));
 			}
 
-			return response;
+			return responseTask;
 		}
 
 		/// <summary>
@@ -138,7 +111,7 @@ namespace XanBotCore.Utility {
 		/// <param name="putWelcomingPrefix">If true, it attempts to add some feeling to the message (rather than a raw ping, it will say "Hey, role, role, and role!" followed by the message, if the message is not null)</param>
 		/// <param name="roles">The role or roles that will be pinged.</param>
 		/// <returns></returns>
-		public static async Task SendPingsInMessage(DiscordChannel targetChannel, string message, bool putWelcomingPrefix, params DiscordRole[] roles) {
+		public static async Task SendPingsInMessageAsync(DiscordChannel targetChannel, string message, bool putWelcomingPrefix, params DiscordRole[] roles) {
 			foreach (DiscordRole role in roles) {
 				await role.ModifyAsync(mentionable: true, reason: "Call to SendPingsInMessage, role needs to be made temporarily pingable.");
 			}

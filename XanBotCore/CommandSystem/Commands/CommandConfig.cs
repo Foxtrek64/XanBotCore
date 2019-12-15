@@ -27,7 +27,7 @@ namespace XanBotCore.CommandSystem.Commands {
 
 		public override byte RequiredPermissionLevel { get; } = PermissionRegistry.PERMISSION_LEVEL_OPERATOR;
 
-		public override void ExecuteCommand(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
+		public override async Task ExecuteCommandAsync(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
 			if (args.Length == 0) {
 				throw new CommandException(this, "Invalid argument count. Expected at least one argument.");
 			} else if (args.Length >= 1) {
@@ -44,7 +44,7 @@ namespace XanBotCore.CommandSystem.Commands {
 						message += "[" + key + "]=" + targetConfig.GetConfigurationValue(key) + "\n";
 					}
 					message += "```";
-					ResponseUtil.RespondTo(originalMessage, message);
+					await ResponseUtil.RespondToAsync(originalMessage, message);
 
 				// >> config get
 				} else if (subCommand == "get") {
@@ -56,9 +56,9 @@ namespace XanBotCore.CommandSystem.Commands {
 					}
 					string value = targetConfig.GetConfigurationValue(args[1]);
 					if (value != null) {
-						ResponseUtil.RespondTo(originalMessage, "```\n[" + args[1] + "]=" + value + "\n```");
+						await ResponseUtil.RespondToAsync(originalMessage, "```\n[" + args[1] + "]=" + value + "\n```");
 					} else {
-						ResponseUtil.RespondTo(originalMessage, "The specified key does not exist in the configuration.");
+						await ResponseUtil.RespondToAsync(originalMessage, "The specified key does not exist in the configuration.");
 					}
 
 				// >> config set
@@ -70,7 +70,7 @@ namespace XanBotCore.CommandSystem.Commands {
 						throw new CommandException(this, "Config keys cannot contain spaces.");
 					}
 					targetConfig.SetConfigurationValue(args[1], args[2]);
-					ResponseUtil.RespondTo(originalMessage, "Set [`" + args[1] + "`] to: `" + args[2] + "`");
+					await ResponseUtil.RespondToAsync(originalMessage, "Set [`" + args[1] + "`] to: `" + args[2] + "`");
 
 				// something else
 				} else {

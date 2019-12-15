@@ -213,7 +213,7 @@ namespace XanBotCore.Logging {
 			Console.CursorTop++;
 			try {
 				XanBotLogger.LogMessage("CONSOLE ISSUED >> " + cmd);
-				CommandMarshaller.HandleCommand(cmd);
+				CommandMarshaller.HandleCommand(cmd).GetAwaiter().GetResult();
 				CommandCache.Add(cmd);
 				CommandCachePosition = CommandCache.Count;
 			}

@@ -21,8 +21,8 @@ namespace EXAMPLE_BOT.ServerRepresentation.MyCoolServer.Commands {
 
 		public override byte RequiredPermissionLevel => PermissionRegistry.DefaultPermissionLevel;
 
-		public override void ExecuteCommand(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
-			ResponseUtil.RespondTo(originalMessage, "Hello, " + executingMember.Member.Mention);
+		public override async Task ExecuteCommandAsync(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
+			await ResponseUtil.RespondToAsync(originalMessage, "Hello, " + executingMember.Member.Mention);
 		}
 	}
 }

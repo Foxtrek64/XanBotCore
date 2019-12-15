@@ -27,9 +27,9 @@ namespace XanBotCore.CommandSystem.Commands {
 
 		public override byte RequiredPermissionLevel { get; } = PermissionRegistry.PERMISSION_LEVEL_ADMINISTRATOR;
 
-		public override void ExecuteCommand(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
+		public override async Task ExecuteCommandAsync(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
 			if (originalMessage != null) {
-				ResponseUtil.RespondTo(originalMessage, "Sending shutdown signal and shutting down...");
+				await ResponseUtil.RespondToAsync(originalMessage, "Sending shutdown signal and shutting down...");
 			}
 			XanBotCoreSystem.Exit();
 		}

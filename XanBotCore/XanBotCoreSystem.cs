@@ -112,20 +112,19 @@ namespace XanBotCore {
 			BotContextRegistry.InitializeAllContexts();
 
 			XanBotLogger.WriteLine("§2Connecting CommandMarshaller to chat events...");
-#pragma warning disable CS1998
 			Client.MessageCreated += async evt => {
 				if (evt.Author == Client.CurrentUser) return;
 				if (evt.Author.IsBot) return;
 				if (CommandMarshaller.IsCommand(evt.Message.Content)) {
 					XanBotLogger.WriteDebugLine("Message was sent and was detected as a command.");
-					CommandMarshaller.HandleMessageCommand(evt.Message);
+					await CommandMarshaller.HandleMessageCommand(evt.Message);
 				} else {
 					XanBotLogger.WriteDebugLine("Message was sent but was not a command. Throwing it into the passive handlers.");
-					CommandMarshaller.RunPassiveHandlersForMessage(evt.Message);
+					await CommandMarshaller.RunPassiveHandlersForMessage(evt.Message);
 				}
 			};
 
-
+#pragma warning disable CS1998
 			if (yieldUntilGuildsDownloaded) {
 				XanBotLogger.WriteLine("§2Downloading server data from Discord...");
 				ManualResetEvent completedSignal = new ManualResetEvent(false);
@@ -204,13 +203,13 @@ namespace XanBotCore {
 #if DEBUG
 		/// <summary>
 		/// Whether or not this application is running in debug mode or not.<para/>
-		/// CURRENT STATE: TRUE
+		/// /// CURRENT STATE: TRUE ///
 		/// </summary>
 		public static readonly bool IsDebugMode = true;
 #else
 		/// <summary>
 		/// Whether or not this application is running in debug mode or not.<para/>
-		/// /// CURRENT STATE: FALSE
+		/// /// CURRENT STATE: FALSE ///
 		/// </summary>
 		public static readonly bool IsDebugMode = false;
 #endif

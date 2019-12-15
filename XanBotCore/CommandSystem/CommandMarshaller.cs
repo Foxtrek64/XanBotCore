@@ -137,7 +137,7 @@ namespace XanBotCore.CommandSystem {
 		/// !!! This should not be used for commands issued via Discord messages !!!
 		/// </summary>
 		/// <param name="text">The text input to the console.</param>
-		public static void HandleCommand(string text) {
+		public static async Task HandleCommand(string text) {
 			if (text == "") {
 				return;
 			}
@@ -160,7 +160,7 @@ namespace XanBotCore.CommandSystem {
 					if (args.Length > 0) {
 						allArgsText = text.Substring(command.Length + 1);
 					}
-					execCommand.ExecuteCommand(null, null, null, args, allArgsText);
+					await execCommand.ExecuteCommandAsync(null, null, null, args, allArgsText);
 				} catch (CommandException commandErr) {
 					string message = string.Format("§cFailed to issue command \"{0}\": §1{1}", commandErr.Command.Name, commandErr.Message);
 					XanBotLogger.WriteLine(message);
@@ -177,7 +177,7 @@ namespace XanBotCore.CommandSystem {
 		/// Handles a command issued via a Discord message. This does not test if it is a command. Please test with <see cref="IsCommand(string)"/> before running this.
 		/// </summary>
 		/// <param name="originalMessage">The Discord message sent by the command.</param>
-		public static void HandleMessageCommand(DiscordMessage originalMessage) {
+		public static async Task HandleMessageCommand(DiscordMessage originalMessage) {
 			DiscordUser author = originalMessage.Author;
 			BotContext commandContext = BotContextRegistry.GetContext(originalMessage.Channel.Guild);
 			XanBotLogger.WriteDebugLine("Executing command in bot context. Info:");
@@ -200,7 +200,7 @@ namespace XanBotCore.CommandSystem {
 
 			// Catch case: Prevent excessive command length.
 			if (command.Length > 32) {
-				ResponseUtil.RespondTo(originalMessage, "The command you input is too long.");
+				await ResponseUtil.RespondToAsync(originalMessage, "The command you input is too long.");
 				XanBotLogger.WriteLine(string.Format("User \"§6{0}§a\" issued a command that was considered too long to parse.", member.FullName));
 				return;
 			}
@@ -237,26 +237,28 @@ namespace XanBotCore.CommandSystem {
 							allArgsText = text.Substring(command.Length + 1);
 						}
 						originalMessage.Channel.TriggerTypingAsync().GetAwaiter().GetResult();
-						execCommand.ExecuteCommand(commandContext, member, originalMessage, args, allArgsText);
+						await execCommand.ExecuteCommandAsync(commandContext, member, originalMessage, args, allArgsText);
 						XanBotLogger.WriteLine(string.Format("User \"§6{0}§a\" issued command \"§6{1}§a\" with args {2}", member.FullName, command, ArrayToText(args)));
 					} catch (CommandException commandErr) {
 						string message = string.Format("§cFailed to issue command `{0}`: §1{1}", commandErr.Command.Name, commandErr.Message);
-						ResponseUtil.RespondTo(originalMessage, message);
+						await ResponseUtil.RespondToAsync(originalMessage, message);
 
 						XanBotLogger.WriteLine(string.Format("User \"§6{0}§a\" attempted to issue command \"§6{1}§a\" but it failed. The command gave the reason: §2{2}", member.FullName, commandErr.Command.Name, commandErr.Message));
 					} catch (ArchonCommandException commandErr) {
 						string message = string.Format("§cFailed to issue Archon Command `{0}`: §1{1}", commandErr.Command.Name, commandErr.Message);
-						ResponseUtil.RespondTo(originalMessage, message);
+						await ResponseUtil.RespondToAsync(originalMessage, message);
 
 						XanBotLogger.WriteLine(string.Format("User \"§6{0}§a\" attempted to issue Archon Command \"§6{1}§a\" but it failed. The command gave the reason: §2{2}", member.FullName, commandErr.Command.Name, commandErr.Message));
+					} catch (TaskCanceledException taskCancel) {
+						XanBotLogger.WriteException(taskCancel);
 					}
 				} else {
 					string message = string.Format("You are not authorized to use `{0}`. It is only available to `{1}` and above (You are at `{2}`)", execCommand.Name, execCommand.RequiredPermissionLevel, member.PermissionLevel);
-					ResponseUtil.RespondTo(originalMessage, message);
+					await ResponseUtil.RespondToAsync(originalMessage, message);
 					XanBotLogger.WriteLine(string.Format("User \"§6{0}§a\" attempted to issue command \"§6{1}§a\" but it failed because they don't have a high enough permission level.", member.FullName, execCommand.Name));
 				}
 			} else {
-				ResponseUtil.RespondTo(originalMessage, "The command `" + command + "` does not exist.");
+				await ResponseUtil.RespondToAsync(originalMessage, "The command `" + command + "` does not exist.");
 				XanBotLogger.WriteLine(string.Format("User \"§6{0}§a\" attempted to issue command \"§6{1}§a\" but it failed because it doesn't exist.", member.FullName, command));
 			}
 		}
@@ -265,14 +267,14 @@ namespace XanBotCore.CommandSystem {
 		/// Runs the <see cref="PassiveHandler"/>s for the server that <paramref name="originalMessage"/> was sent in based on the content from the message.
 		/// </summary>
 		/// <param name="originalMessage">The chat message.</param>
-		public static void RunPassiveHandlersForMessage(DiscordMessage originalMessage) {
+		public static async Task RunPassiveHandlersForMessage(DiscordMessage originalMessage) {
 			if (originalMessage == null) return;
 
 			BotContext targetContext = BotContextRegistry.GetContext(originalMessage.Channel.Guild);
 			XanBotMember sender = XanBotMember.GetMemberFromUser(targetContext, originalMessage.Author);
 			if (!targetContext.Virtual) {
 				foreach (PassiveHandler handler in targetContext.ContextSpecificHandlers) {
-					if (handler.RunHandler(targetContext, sender, originalMessage)) return;
+					if (await handler.RunHandlerAsync(targetContext, sender, originalMessage)) return;
 				}
 			}
 		}

@@ -27,7 +27,7 @@ namespace XanBotCore.CommandSystem.Commands {
 
 		public override byte RequiredPermissionLevel { get; } = PermissionRegistry.PERMISSION_LEVEL_STANDARD_USER;
 
-		public override void ExecuteCommand(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
+		public override async Task ExecuteCommandAsync(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
 			if (args.Length == 0) {
 				string text = "Commands in yellow with a `+` before them are commands you can use. Commands in red with a `-` before them are commands you cannot use. ";
 				text += "\nSay **`>> help command_name_here`** to get more documentation on a specific command. Say **`>> help help`** to get information on how commands work.";
@@ -67,7 +67,7 @@ namespace XanBotCore.CommandSystem.Commands {
 
 				text += "```\n";
 				
-				ResponseUtil.RespondTo(originalMessage, text);
+				await ResponseUtil.RespondToAsync(originalMessage, text);
 			}
 			else if (args.Length == 1) {
 				string command = args[0];
@@ -84,7 +84,7 @@ namespace XanBotCore.CommandSystem.Commands {
 						} else {
 							text = string.Format("**Command:** `{0}` \n{1}\n\n**Usage:** `{2}`", cmd.Name, cmd.Description, cmd.Syntax);
 						}
-						ResponseUtil.RespondTo(originalMessage, text);
+						await ResponseUtil.RespondToAsync(originalMessage, text);
 						return;
 					}
 				}
@@ -102,7 +102,7 @@ namespace XanBotCore.CommandSystem.Commands {
 							} else {
 								text = string.Format("**Command:** `{0}` \n{1}\n\n**Usage:** `{2}`", cmd.Name, cmd.Description, cmd.Syntax);
 							}
-							ResponseUtil.RespondTo(originalMessage, text);
+							await ResponseUtil.RespondToAsync(originalMessage, text);
 							return;
 						}
 					}
