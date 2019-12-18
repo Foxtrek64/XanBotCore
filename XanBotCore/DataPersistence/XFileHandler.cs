@@ -15,7 +15,7 @@ namespace XanBotCore.DataPersistence {
 		/// <summary>
 		/// The directory to the data persistence storage.
 		/// </summary>
-		private static readonly string BOT_FILE_DIR = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "XanBotCore");
+		public static readonly string BOT_FILE_DIR = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "XanBotCore");
 
 		/// <summary>
 		/// The cache of existing <see cref="XFileHandler"/>s
@@ -161,8 +161,7 @@ namespace XanBotCore.DataPersistence {
 				currentPathSoFar += component + "\\";
 				if (component == components.Last()) {
 					CreateIfDoesntExist(currentPathSoFar, isFolder);
-				}
-				else {
+				} else {
 					CreateIfDoesntExist(currentPathSoFar, true);
 				}
 			}
@@ -175,12 +174,14 @@ namespace XanBotCore.DataPersistence {
 		/// <param name="isFolder">Whether or not this is a folder.</param>
 		public static void CreateIfDoesntExist(string path, bool isFolder = false) {
 			if (!isFolder) {
+				while (path.EndsWith("\\")) {
+					path = path.Substring(0, path.Length - 1);
+				}
 				if (!File.Exists(path)) {
 					FileStream newFile = File.Create(path);
 					newFile.Close();
 				}
-			}
-			else {
+			} else {
 				if (!Directory.Exists(path)) {
 					Directory.CreateDirectory(path);
 				}
