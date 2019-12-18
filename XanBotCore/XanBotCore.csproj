@@ -57,6 +57,7 @@
     <Compile Include="CommandSystem\Commands\ArchonCommands\ArchonCommandCurrentContext.cs" />
     <Compile Include="CommandSystem\Commands\ArchonCommands\ArchonCommandHelp.cs" />
     <Compile Include="Exceptions\MalformedConfigDataException.cs" />
+    <Compile Include="Logging\ConsoleColorVT.cs" />
     <Compile Include="Logging\IConsolePrintable.cs" />
     <Compile Include="Permissions\PermissionRegistry.cs" />
     <Compile Include="UserObjects\DiscordUserExtensions.cs" />
