@@ -43,7 +43,7 @@ namespace XanBotCore.Logging {
 			Console.Write(new string(' ', Console.BufferWidth));
 			Console.CursorLeft = 0;
 			Console.CursorTop = LastTop;
-			Console.ForegroundColor = ConsoleColor.Green;
+			//Console.ForegroundColor = ConsoleColor.Green;
 		}
 
 		/// <summary>

@@ -3,14 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using XanBotCore.DataPersistence;
 
 namespace XanBotCore.Logging {
 
 	/// <summary>
-	/// A console logging utility. Offers the ability to format messages in a manner not unlike that of Minecraft's color code system. See https://minecraft.gamepedia.com/Formatting_codes#Color_codes</summary>
+	/// A console logging utility. Offers the ability to format messages with color codes.
 	/// </summary>
 	public class XanBotLogger {
 
@@ -51,9 +53,10 @@ namespace XanBotCore.Logging {
 		private static string Log = "";
 
 		/// <summary>
-		/// The symbol recognized in messages for color codes. This is identical to Minecraft's color code system. See https://minecraft.gamepedia.com/Formatting_codes#Color_codes
+		/// The symbol recognized in messages for color codes. This is identical to Minecraft's color code system.<para/>
+		/// See <a href="https://minecraft.gamepedia.com/Formatting_codes#Color_codes">https://minecraft.gamepedia.com/Formatting_codes#Color_codes</a> for more information.
 		/// </summary>
-		public static readonly char COLOR_CODE_SYM = '§';
+		public const char COLOR_CODE_SYM = '§';
 
 		/// <summary>
 		/// A map of byte code values to ConsoleColors
@@ -78,6 +81,107 @@ namespace XanBotCore.Logging {
 		};
 
 		/// <summary>
+		/// An orange console color created via the RGB code (255, 128, 0).
+		/// </summary>
+		private static readonly ConsoleColorVT ORANGE = new ConsoleColorVT(255, 128, 0);
+
+		/// <summary>
+		/// An yellowy color.
+		/// </summary>
+		private static readonly ConsoleColorVT YELLA = new ConsoleColorVT(255, 183, 66);
+
+		/// <summary>
+		/// An super dark red color.
+		/// </summary>
+		private static readonly ConsoleColorVT BLOOD = new ConsoleColorVT(15, 0, 0);
+
+		private static ConsoleColorVT FGColorInternal = ConsoleColor.White;
+		private static ConsoleColorVT BGColorInternal = ConsoleColor.Black;
+
+		/// <summary>
+		/// The foreground color of this console.<para/>
+		/// Setting this to null if VT is enabled will default to white.<para/>
+		/// Attempting to set this value if <see cref="IsVTEnabled"/> is false will throw an <see cref="InvalidOperationException"/>
+		/// </summary>
+		public static ConsoleColorVT ForegroundColor {
+			get {
+				return FGColorInternal;
+			}
+			set {
+				if (!IsVTEnabled) {
+					if (value == null) return; // This is safe if it's not enabled since this implies no changes.
+					throw new InvalidOperationException("Something attempted to set a custom foreground color, but VT Sequences have not been enabled. Did you remember to call EnableVTSupport()?");
+				}
+				if (value == null) value = ConsoleColor.White;
+				FGColorInternal = value;
+				value.ApplyToForeground();
+			}
+		}
+
+		/// <summary>
+		/// The background color of this console.<para/>
+		/// Setting this to null if VT is enabled will default to black.<para/>
+		/// Attempting to set this value if <see cref="IsVTEnabled"/> is false will throw an <see cref="InvalidOperationException"/>
+		/// </summary>
+		public static ConsoleColorVT BackgroundColor {
+			get {
+				return BGColorInternal;
+			}
+			set {
+				if (!IsVTEnabled) {
+					if (value == null) return; // This is safe if it's not enabled since this implies no changes.
+					throw new InvalidOperationException("Something attempted to set a custom background color, but VT Sequences have not been enabled. Did you remember to call EnableVTSupport()?");
+				}
+				if (value == null) value = ConsoleColor.Black;
+				BGColorInternal = value;
+				value.ApplyToBackground();
+			}
+		}
+
+		#region Kernel32 API Imports
+		[DllImport("kernel32.dll", SetLastError = true)]
+		static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
+
+		[DllImport("kernel32.dll", SetLastError = true)]
+		static extern IntPtr GetStdHandle(int nStdHandle);
+
+		[DllImport("kernel32.dll", SetLastError = true)]
+		static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+
+		static IntPtr INVALID_HANDLE_VALUE = new IntPtr(-1);
+		#endregion
+
+		/// <summary>
+		/// Whether or not VT Sequences are enabled and should be used.
+		/// </summary>
+		public static bool IsVTEnabled { get; private set; } = false;
+
+		/// <summary>
+		/// When called, this enables VT Sequence support for the console. Whether or not this action will be successful depends on the platform this bot is running on.<para/>
+		/// VT sequences allow low level control of the console's colors, including the allowance of full 16-million color RGB text and backgrounds.<para/>
+		/// See <a href="https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences">https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences</a> for more information.
+		/// </summary>
+		public static void EnableVTSupport() {
+			if (IsVTEnabled) return;
+
+			IntPtr hOut = GetStdHandle(-11);
+			if (hOut != INVALID_HANDLE_VALUE) {
+				uint mode;
+				if (GetConsoleMode(hOut, out mode)) {
+					mode |= 0x4;
+					SetConsoleMode(hOut, mode);
+					IsVTEnabled = true;
+					ForegroundColor.ApplyToForeground();
+					BackgroundColor.ApplyToBackground();
+				} else {
+					throw new NotSupportedException("This platform does not support the use of VT Sequences.");
+				}
+			} else {
+				throw new NullReferenceException("Console handle is invalid.");
+			}
+		}
+
+		/// <summary>
 		/// Returns a formatted timestamp: "[HH:MM:SS] "
 		/// </summary>
 		/// <returns>Returns a formatted timestamp: "[HH:MM:SS] "</returns>
@@ -97,7 +201,36 @@ namespace XanBotCore.Logging {
 		/// Writes errors to the console and plays a beep sound to alert the operator.
 		/// </summary>
 		public static void WriteException(Exception ex) {
-			WriteLine("§c[" + ex.GetType().ToString() + " Thrown!] §e" + ex.Message + "\n§4" + ex.StackTrace, true);
+			if (IsVTEnabled) {
+				WriteExceptionVT(ex);
+			} else {
+				WriteLine("§c[" + ex.GetType().ToString() + " Thrown!] §e" + ex.Message + "\n§4" + ex.StackTrace + "\n", true);
+			}
+		}
+
+		/// <summary>
+		/// Identical to <see cref="WriteException(Exception)"/> but it targets VT mode.
+		/// </summary>
+		/// <param name="ex"></param>
+		private static void WriteExceptionVT(Exception ex) {
+			XanBotConsoleCore.BumpIncomingLogTextPre();
+
+			ConsoleColorVT old = ForegroundColor;
+
+			ConsoleColorVT red = ConsoleColor.Red;
+			ConsoleColorVT darkRed = ConsoleColor.DarkRed;
+			ConsoleColorVT darkYellow = ConsoleColor.DarkYellow;
+			// 4 and 24 add and remove underline respectively
+			ConsoleColorVT oldbg = BackgroundColor;
+			BLOOD.ApplyToBackground();
+			string msg = darkYellow + GetFormattedTimestamp() + red + "[\x1b[4m" + YELLA + ex.GetType().ToString() + " Thrown!\x1b[24m" + red + "]: " + ORANGE + ex.Message + "\n" + darkRed + ex.StackTrace + "\n\n";
+			WriteMessageFromColorsVT(msg);
+
+			ForegroundColor = old;
+			oldbg.ApplyToBackground();
+			LogMessage("[" + ex.GetType().ToString() + " Thrown!] " + ex.Message + "\n" + ex.StackTrace); // Write it to the log file.
+
+			XanBotConsoleCore.BumpIncomingLogTextPost();
 		}
 
 		/// <summary>
@@ -105,6 +238,9 @@ namespace XanBotCore.Logging {
 		/// </summary>
 		/// <param name="message">The string to log.</param>
 		public static void LogMessage(string message) {
+			if (MessageHasColors(message)) {
+				message = SelectiveClearColorFormattingCode(message);
+			}
 			Log += GetFormattedTimestamp() + message + "\n";
 			WriteLogFile();
 		}
@@ -113,6 +249,9 @@ namespace XanBotCore.Logging {
 		/// Returns `true` if the message contains the color code symbol and, by extension, a color code.
 		/// </summary>
 		public static bool MessageHasColors(string message) {
+			if (IsVTEnabled) {
+				return Regex.IsMatch(message, @"(\x1b\[.+m)");
+			}
 			return message.Contains(COLOR_CODE_SYM);
 		}
 
@@ -144,32 +283,102 @@ namespace XanBotCore.Logging {
 			return res;
 		}
 
+		/// <summary>
+		/// Strips away all VT color formatting text.
+		/// </summary>
+		/// <param name="message"></param>
+		/// <returns></returns>
+		public static string StripVTColorFormattingCode(string message) {
+			// tfw the §# version is a huge block of text but this is just like "nah"
+			string withoutx1bs = Regex.Replace(message, @"(\x1b\[.+m)", "");
+			return Regex.Replace(withoutx1bs, @"((\^#)([0-9]|[a-f]|[A-F]){6};)", "");
+		}
 
 		/// <summary>
-		/// Writes a color coded console message, like text in Minecraft.
+		/// Automatically calls the correct color code strip function based on if VT is enabled or not.
 		/// </summary>
+		/// <param name="message"></param>
+		/// <returns></returns>
+		public static string SelectiveClearColorFormattingCode(string message) {
+			if (IsVTEnabled) {
+				return StripVTColorFormattingCode(message);
+			} else {
+				return StripColorFormattingCode(message);
+			}
+		}
+
+		/// <summary>
+		/// Writes a color coded console message in a similar manner to text in Minecraft, where colors are selected with § (e.g. §a will make all following text green)
+		/// </summary>
+		/// <param name="message">The message to write.</param>
 		public static void WriteMessageFromColors(string message) {
+			WriteMessageFromColors(message, false);
+		}
+
+		internal static void WriteMessageFromColors(string message, bool skipConsoleStuff) {
 			string[] colorSegs = message.Split(COLOR_CODE_SYM);
-			//colorSegs[0] will be empty if we have a color code at the start.
+			// colorSegs[0] will be empty if we have a color code at the start.
 			ConsoleColor defColor = Console.ForegroundColor;
-			XanBotConsoleCore.BumpIncomingLogTextPre();
+			if (!skipConsoleStuff) {
+				XanBotConsoleCore.BumpIncomingLogTextPre();
+			}
+
 			foreach (string coloredString in colorSegs) {
 				if (coloredString.Length > 1) {
 					byte code = 255;
 					try { code = Convert.ToByte(coloredString.First().ToString(), 16); } catch (Exception) { }
 					bool success = ConsoleColorMap.TryGetValue(code, out ConsoleColor color);
-					if (!success) {
-						//WriteLine("ERROR: Failed to parse text color! Unknown color code " + coloredString.First());
-						return;
+					if (success) {
+						if (!IsVTEnabled) {
+							Console.ForegroundColor = color;
+						} else {
+							ForegroundColor = color;
+						}
+						Console.Write(coloredString.Substring(1));
+					} else {
+						if (!skipConsoleStuff) continue;
+						Console.Write(coloredString);
 					}
-
-					Console.ForegroundColor = color;
-					Console.Write(coloredString.Substring(1));
 				}
 			}
-			Console.ForegroundColor = defColor;
+			
+			if (!skipConsoleStuff) {
+				Console.ForegroundColor = defColor;
+				XanBotConsoleCore.BumpIncomingLogTextPost();
+			}
+		}
+
+		/// <summary>
+		/// Writes a color coded console message via the custom VT formatting (^#......; where ...... is a hex color code)
+		/// </summary>
+		/// <param name="message"></param>
+		public static void WriteMessageFromColorsVT(string message) {
+			MatchCollection colorMatches = Regex.Matches(message, ConsoleColorVT.COLOR_CODE_REGEX);
+			message = Regex.Replace(message, ConsoleColorVT.COLOR_CODE_REGEX, SUPER_UNIQUE_SPLIT_THINGY[0]); // The behavior of Regex.split bricks everything so I have to use this disgusting hacky method.
+			string[] colorSegs = message.Split(SUPER_UNIQUE_SPLIT_THINGY, StringSplitOptions.None);
+			
+			// colorSegs[0] will be empty if we have a color code at the start.
+
+			ConsoleColorVT old = ForegroundColor;
+			XanBotConsoleCore.BumpIncomingLogTextPre();
+
+			for (int idx = 0; idx < colorSegs.Length; idx++) {
+				string coloredString = colorSegs[idx];
+				if (coloredString.Contains(COLOR_CODE_SYM)) {
+					// Backwards compatibility.
+					WriteMessageFromColors(coloredString, true);
+				} else {
+					Console.Write(coloredString);
+				}
+
+				if (idx < colorMatches.Count)
+					ForegroundColor = ConsoleColorVT.FromFormattedString(colorMatches[idx].Value);
+			}
+
+			ForegroundColor = old;
 			XanBotConsoleCore.BumpIncomingLogTextPost();
 		}
+		private static readonly string[] SUPER_UNIQUE_SPLIT_THINGY = new string[] { "\x69\x42\x06\x66" };
 
 		/// <summary>
 		/// Log some text on a single line, and make a newline afterwards.
@@ -186,8 +395,31 @@ namespace XanBotCore.Logging {
 			string logMessage = message;
 			if (MessageHasColors(logMessage)) logMessage = StripColorFormattingCode(logMessage);
 			Log += timestamp + logMessage;
-			WriteMessageFromColors(COLOR_CODE_SYM + "2" + timestamp + COLOR_CODE_SYM + "a" + message);
+			if (IsVTEnabled) {
+				//WriteLineVT(timestamp, logMessage);
+				ConsoleColorVT old = ForegroundColor;
+				WriteMessageFromColorsVT("^#008000;" + timestamp + old + message);
+			} else {
+				WriteMessageFromColors(COLOR_CODE_SYM + "2" + timestamp + COLOR_CODE_SYM + "a" + message);
+			}
 			WriteLogFile();
+		}
+
+		[Obsolete]
+		private static void WriteLineVT(string timestamp, string message) {
+			XanBotConsoleCore.BumpIncomingLogTextPre();
+
+			//ConsoleColorVT old = ForegroundColor;
+			ForegroundColor = ConsoleColor.DarkGreen;
+			Console.Write(timestamp);
+			//ForegroundColor = old;
+			//Console.Write(message);
+
+			WriteMessageFromColorsVT(message);
+			
+			XanBotConsoleCore.BumpIncomingLogTextPost();
+			// Don't write to the log.
+			// It's done in the stock WriteLine method.
 		}
 
 		/// <summary>
@@ -197,8 +429,19 @@ namespace XanBotCore.Logging {
 		/// <param name="message">The message to display.</param>
 		/// <param name="alertSound">If true, this will only log if the bot is in debug mode.</param>
 		public static void WriteDebugLine(string message = "", bool alertSound = false) {
-			message = "§7" + message;
+			if (IsVTEnabled) {
+				WriteDebugLineVT(message, alertSound);
+			} else {
+				message = "§7" + message;
+				WriteLine(message, alertSound, true);
+			}
+		}
+
+		private static void WriteDebugLineVT(string message = "", bool alertSound = false) {
+			ConsoleColorVT lastColor = ForegroundColor;
+			ForegroundColor = ConsoleColor.Gray;
 			WriteLine(message, alertSound, true);
+			ForegroundColor = lastColor;
 		}
 
 		/// <summary>
@@ -207,6 +450,7 @@ namespace XanBotCore.Logging {
 		/// <param name="path">A file path for a log file. This should ideally be a text document with the .log extension.</param>
 		public static void WriteLogFile(string path = null) {
 			path = path ?? LogFilePath;
+			XFileHandler.CreateEntirePathIfDoesntExist(path);
 			Stream logFileStream = File.AppendText(path).BaseStream;
 			char[] chars = Log.ToCharArray();
 			logFileStream.Write(Encoding.UTF8.GetBytes(chars), 0, chars.Length);
@@ -220,11 +464,25 @@ namespace XanBotCore.Logging {
 		public static void ClearConsoleIfNecessary() { 
 			if (Console.CursorTop >= Console.BufferHeight - 50) {
 				Console.Clear();
-				Console.ForegroundColor = ConsoleColor.DarkCyan;
-				Console.WriteLine("-- CONSOLE CLEARED TO RESET BUFFER --");
-				LogMessage("-- CONSOLE CLEARED TO RESET BUFFER --");
-				Console.ForegroundColor = ConsoleColor.Green;
+				if (IsVTEnabled) {
+					ConsoleColorVT old = ForegroundColor;
+					ForegroundColor = ConsoleColor.DarkCyan;
+					WriteConsoleClearedNotif();
+					ForegroundColor = old;
+				} else {
+					ConsoleColor old = Console.ForegroundColor;
+					Console.ForegroundColor = ConsoleColor.DarkCyan;
+					WriteConsoleClearedNotif();
+					Console.ForegroundColor = old;
+				}
+				
+				
 			}
+		}
+
+		private static void WriteConsoleClearedNotif() {
+			Console.WriteLine("-- CONSOLE CLEARED TO RESET BUFFER --");
+			LogMessage("-- CONSOLE CLEARED TO RESET BUFFER --");
 		}
 
 
