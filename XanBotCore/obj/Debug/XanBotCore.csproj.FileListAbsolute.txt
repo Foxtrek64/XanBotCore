@@ -22,11 +22,8 @@ F:\Users\Xan\source\repos\OriDiscordBot\XanBotCore\obj\Debug\XanBotCore.pdb
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Debug\XanBotCore.dll
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Debug\XanBotCore.pdb
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Debug\XanBotCore.csprojAssemblyReference.cache
-F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Debug\XanBotCore.csproj.CoreCompileInputs.cache
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Debug\XanBotCore.dll
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Debug\XanBotCore.pdb
-F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Debug\DSharpPlus.dll
-F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Debug\DSharpPlus.VoiceNext.dll
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Debug\Newtonsoft.Json.dll
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Debug\System.Memory.dll
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Debug\System.Buffers.dll
@@ -39,6 +36,5 @@ F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Debug\System.Buffers.xml
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Debug\System.Numerics.Vectors.xml
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Debug\XanBotCore.csproj.CopyComplete
-F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Debug\DSharpPlus.WebSocket.WebSocket4Net.dll
-F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Debug\WebSocket4Net.dll
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Debug\DSharpPlus.WebSocket.WebSocket4Net.xml
+F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Debug\System.Memory.xml

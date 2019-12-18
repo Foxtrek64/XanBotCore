@@ -23,7 +23,6 @@ F:\Users\Xan\source\repos\XanBotCore\EXAMPLE_BOT\bin\Debug\System.Numerics.Vecto
 F:\Users\Xan\source\repos\XanBotCore\EXAMPLE_BOT\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
 F:\Users\Xan\source\repos\XanBotCore\EXAMPLE_BOT\bin\Debug\System.ValueTuple.xml
 F:\Users\Xan\source\repos\XanBotCore\EXAMPLE_BOT\obj\Debug\EXAMPLE_BOT.csprojAssemblyReference.cache
-F:\Users\Xan\source\repos\XanBotCore\EXAMPLE_BOT\obj\Debug\EXAMPLE_BOT.csproj.CoreCompileInputs.cache
 F:\Users\Xan\source\repos\XanBotCore\EXAMPLE_BOT\obj\Debug\EXAMPLE_BOT.csproj.CopyComplete
 F:\Users\Xan\source\repos\XanBotCore\EXAMPLE_BOT\obj\Debug\EXAMPLE_BOT.exe
 F:\Users\Xan\source\repos\XanBotCore\EXAMPLE_BOT\obj\Debug\EXAMPLE_BOT.pdb

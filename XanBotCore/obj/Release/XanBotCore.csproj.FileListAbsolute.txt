@@ -20,15 +20,10 @@ F:\Users\Xan\source\repos\OriDiscordBot\XanBotCore\obj\Release\XanBotCore.csproj
 F:\Users\Xan\source\repos\OriDiscordBot\XanBotCore\obj\Release\XanBotCore.dll
 F:\Users\Xan\source\repos\OriDiscordBot\XanBotCore\obj\Release\XanBotCore.pdb
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Release\XanBotCore.csprojAssemblyReference.cache
-F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Release\XanBotCore.csproj.CoreCompileInputs.cache
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Release\XanBotCore.dll
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Release\XanBotCore.pdb
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\XanBotCore.dll
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\XanBotCore.pdb
-F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\DSharpPlus.dll
-F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\DSharpPlus.VoiceNext.dll
-F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\DSharpPlus.WebSocket.WebSocket4Net.dll
-F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\WebSocket4Net.dll
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\Newtonsoft.Json.dll
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\System.Memory.dll
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\System.Buffers.dll
@@ -38,7 +33,6 @@ F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\DSharpPlus.xml
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\DSharpPlus.VoiceNext.xml
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\DSharpPlus.WebSocket.WebSocket4Net.xml
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\Newtonsoft.Json.xml
-F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\System.Buffers.xml
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\System.Numerics.Vectors.xml
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\System.Runtime.CompilerServices.Unsafe.xml
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Release\XanBotCore.csproj.CopyComplete
@@ -64,3 +58,4 @@ F:\Users\subzeroshark\source\repos\XanBotCore\XanBotCore\obj\Release\XanBotCore.
 F:\Users\subzeroshark\source\repos\XanBotCore\XanBotCore\obj\Release\XanBotCore.dll
 F:\Users\subzeroshark\source\repos\XanBotCore\XanBotCore\obj\Release\XanBotCore.pdb
 F:\Users\subzeroshark\source\repos\XanBotCore\XanBotCore\bin\Release\System.Memory.xml
+F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\System.Memory.xml
