@@ -238,9 +238,9 @@ namespace XanBotCore.Logging {
 		/// </summary>
 		/// <param name="message">The string to log.</param>
 		public static void LogMessage(string message) {
-			if (MessageHasColors(message)) {
-				message = SelectiveClearColorFormattingCode(message);
-			}
+			//if (MessageHasColors(message)) {
+			message = ClearColorFormattingCodeAll(message);
+			//}
 			Log += GetFormattedTimestamp() + message + "\n";
 			WriteLogFile();
 		}
@@ -250,7 +250,7 @@ namespace XanBotCore.Logging {
 		/// </summary>
 		public static bool MessageHasColors(string message) {
 			if (IsVTEnabled) {
-				return Regex.IsMatch(message, @"(\x1b\[.+m)");
+				return Regex.IsMatch(message, @"(\x1b)(\[[^m]+)m") || message.Contains(COLOR_CODE_SYM);
 			}
 			return message.Contains(COLOR_CODE_SYM);
 		}
@@ -290,21 +290,18 @@ namespace XanBotCore.Logging {
 		/// <returns></returns>
 		public static string StripVTColorFormattingCode(string message) {
 			// tfw the §# version is a huge block of text but this is just like "nah"
-			string withoutx1bs = Regex.Replace(message, @"(\x1b\[.+m)", "");
+			string withoutx1bs = Regex.Replace(message, @"(\x1b)(\[[^m]+)m", "");
 			return Regex.Replace(withoutx1bs, @"((\^#)([0-9]|[a-f]|[A-F]){6};)", "");
 		}
 
 		/// <summary>
-		/// Automatically calls the correct color code strip function based on if VT is enabled or not.
+		/// Calls both formatting cleanup methods
 		/// </summary>
 		/// <param name="message"></param>
 		/// <returns></returns>
-		public static string SelectiveClearColorFormattingCode(string message) {
-			if (IsVTEnabled) {
-				return StripVTColorFormattingCode(message);
-			} else {
-				return StripColorFormattingCode(message);
-			}
+		public static string ClearColorFormattingCodeAll(string message) {
+			message = StripVTColorFormattingCode(message);
+			return StripColorFormattingCode(message);
 		}
 
 		/// <summary>
@@ -390,11 +387,14 @@ namespace XanBotCore.Logging {
 			if (isDebugModeOnly && !XanBotCoreSystem.IsDebugMode) return;
 			ClearConsoleIfNecessary();
 			if (alertSound) Console.Beep();
+			LogMessage(message);
+
 			message += "\n";
 			string timestamp = GetFormattedTimestamp();
-			string logMessage = message;
-			if (MessageHasColors(logMessage)) logMessage = StripColorFormattingCode(logMessage);
-			Log += timestamp + logMessage;
+			//string logMessage = message;
+			//if (MessageHasColors(logMessage)) logMessage = StripColorFormattingCode(logMessage);
+			//Log += timestamp + logMessage;
+			
 			if (IsVTEnabled) {
 				//WriteLineVT(timestamp, logMessage);
 				ConsoleColorVT old = ForegroundColor;
@@ -405,21 +405,29 @@ namespace XanBotCore.Logging {
 			WriteLogFile();
 		}
 
-		[Obsolete]
-		private static void WriteLineVT(string timestamp, string message) {
-			XanBotConsoleCore.BumpIncomingLogTextPre();
-
-			//ConsoleColorVT old = ForegroundColor;
-			ForegroundColor = ConsoleColor.DarkGreen;
-			Console.Write(timestamp);
-			//ForegroundColor = old;
-			//Console.Write(message);
-
-			WriteMessageFromColorsVT(message);
-			
-			XanBotConsoleCore.BumpIncomingLogTextPost();
-			// Don't write to the log.
-			// It's done in the stock WriteLine method.
+		/// <summary>
+		/// Log some text on a single line
+		/// </summary>
+		/// <param name="message">The text to log.</param>
+		/// <param name="alertSound">If true, this message will cause the console to beep.</param>
+		/// <param name="isDebugModeOnly">If true, this will only log if the bot is in debug mode.</param>
+		public static void Write(string message = "", bool alertSound = false, bool isDebugModeOnly = false) {
+			if (isDebugModeOnly && !XanBotCoreSystem.IsDebugMode) return;
+			ClearConsoleIfNecessary();
+			if (alertSound) Console.Beep();
+			string timestamp = GetFormattedTimestamp();
+			//string logMessage = message;
+			//if (MessageHasColors(logMessage)) logMessage = StripColorFormattingCode(logMessage);
+			//Log += timestamp + logMessage;
+			LogMessage(message);
+			if (IsVTEnabled) {
+				//WriteLineVT(timestamp, logMessage);
+				ConsoleColorVT old = ForegroundColor;
+				WriteMessageFromColorsVT("^#008000;" + timestamp + old + message);
+			} else {
+				WriteMessageFromColors(COLOR_CODE_SYM + "2" + timestamp + COLOR_CODE_SYM + "a" + message);
+			}
+			WriteLogFile();
 		}
 
 		/// <summary>
