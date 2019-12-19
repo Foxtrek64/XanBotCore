@@ -16,8 +16,6 @@ namespace XanBotCore.Permissions {
 	/// </summary>
 	public class PermissionRegistry {
 
-		
-
 		private static readonly Dictionary<BotContext, Dictionary<ulong, byte>> PermissionsInContext = new Dictionary<BotContext, Dictionary<ulong, byte>>();
 
 		/// <summary>
