@@ -87,7 +87,7 @@ namespace XanBotCore.Utility {
 			} else if (potentialReturnsArray.Length == 1) {
 				return potentialReturnsArray[0];
 			} else {
-				throw new NonSingularResultException<XanBotMember>(string.Format("More than one member of the server was found with the search query `{0}`!", data), potentialReturnsArray);
+				throw new NonSingularResultException(string.Format("More than one member of the server was found with the search query `{0}`!", data), potentialReturnsArray);
 			}
 		}
 
