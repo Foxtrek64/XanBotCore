@@ -201,7 +201,7 @@ namespace XanBotCore.CommandSystem {
 			// Catch case: Prevent excessive command length.
 			if (command.Length > 32) {
 				await ResponseUtil.RespondToAsync(originalMessage, "The command you input is too long.");
-				XanBotLogger.WriteLine(string.Format("User \"§6{0}§a\" issued a command that was considered too long to parse.", member.FullName));
+				XanBotLogger.WriteLine(string.Format("§aUser \"§6{0}§a\" issued a command that was considered too long to parse.", member.FullName));
 				return;
 			}
 			// Catch case: Strip color formatting
@@ -238,28 +238,28 @@ namespace XanBotCore.CommandSystem {
 						}
 						originalMessage.Channel.TriggerTypingAsync().GetAwaiter().GetResult();
 						await execCommand.ExecuteCommandAsync(commandContext, member, originalMessage, args, allArgsText);
-						XanBotLogger.WriteLine(string.Format("User \"§6{0}§a\" issued command \"§6{1}§a\" with args {2}", member.FullName, command, ArrayToText(args)));
+						XanBotLogger.WriteLine(string.Format("§aUser \"§6{0}§a\" issued command \"§6{1}§a\" with args {2}", member.FullName, command, ArrayToText(args)));
 					} catch (CommandException commandErr) {
 						string message = string.Format("§cFailed to issue command `{0}`: §1{1}", commandErr.Command.Name, commandErr.Message);
 						await ResponseUtil.RespondToAsync(originalMessage, message);
 
-						XanBotLogger.WriteLine(string.Format("User \"§6{0}§a\" attempted to issue command \"§6{1}§a\" but it failed. The command gave the reason: §2{2}", member.FullName, commandErr.Command.Name, commandErr.Message));
+						XanBotLogger.WriteLine(string.Format("§aUser \"§6{0}§a\" attempted to issue command \"§6{1}§a\" but it failed. The command gave the reason: §2{2}", member.FullName, commandErr.Command.Name, commandErr.Message));
 					} catch (ArchonCommandException commandErr) {
 						string message = string.Format("§cFailed to issue Archon Command `{0}`: §1{1}", commandErr.Command.Name, commandErr.Message);
 						await ResponseUtil.RespondToAsync(originalMessage, message);
 
-						XanBotLogger.WriteLine(string.Format("User \"§6{0}§a\" attempted to issue Archon Command \"§6{1}§a\" but it failed. The command gave the reason: §2{2}", member.FullName, commandErr.Command.Name, commandErr.Message));
+						XanBotLogger.WriteLine(string.Format("§aUser \"§6{0}§a\" attempted to issue Archon Command \"§6{1}§a\" but it failed. The command gave the reason: §2{2}", member.FullName, commandErr.Command.Name, commandErr.Message));
 					} catch (TaskCanceledException taskCancel) {
 						XanBotLogger.WriteException(taskCancel);
 					}
 				} else {
 					string message = string.Format("You are not authorized to use `{0}`. It is only available to `{1}` and above (You are at `{2}`)", execCommand.Name, execCommand.RequiredPermissionLevel, member.PermissionLevel);
 					await ResponseUtil.RespondToAsync(originalMessage, message);
-					XanBotLogger.WriteLine(string.Format("User \"§6{0}§a\" attempted to issue command \"§6{1}§a\" but it failed because they don't have a high enough permission level.", member.FullName, execCommand.Name));
+					XanBotLogger.WriteLine(string.Format("§aUser \"§6{0}§a\" attempted to issue command \"§6{1}§a\" but it failed because they don't have a high enough permission level.", member.FullName, execCommand.Name));
 				}
 			} else {
 				await ResponseUtil.RespondToAsync(originalMessage, "The command `" + command + "` does not exist.");
-				XanBotLogger.WriteLine(string.Format("User \"§6{0}§a\" attempted to issue command \"§6{1}§a\" but it failed because it doesn't exist.", member.FullName, command));
+				XanBotLogger.WriteLine(string.Format("§aUser \"§6{0}§a\" attempted to issue command \"§6{1}§a\" but it failed because it doesn't exist.", member.FullName, command));
 			}
 		}
 
