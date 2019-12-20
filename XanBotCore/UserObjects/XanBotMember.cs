@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 using XanBotCore.Logging;
 using XanBotCore.Permissions;
 using XanBotCore.ServerRepresentation;
+using XanBotCore.Utility.DiscordObjects;
 
 namespace XanBotCore.UserObjects {
 
 	/// <summary>
 	/// Represents a wrapped member object that offers some extra data such as permission level and the <see cref="BotContext"/> that this member exists in.
 	/// </summary>
-	public class XanBotMember {
+	public class XanBotMember : IEmbeddable {
 		/// <summary>
 		/// A cache storing XanBotMembers referenced by user ID for usage in the get function.
 		/// </summary>
@@ -294,6 +295,15 @@ namespace XanBotCore.UserObjects {
 		/// <returns></returns>
 		public string ToString(DisplayType displayType) {
 			return BaseUser.GetFormattedUser(displayType);
+		}
+
+		public DiscordEmbed ToEmbed() {
+			DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
+			builder.Title = "XanBotMember Info";
+			builder.Description = "Member: " + Mention;
+			builder.AddField("Context Name", Context.Name);
+			builder.AddField("Permission Level", PermissionLevel.ToString());
+			return builder.Build();
 		}
 
 		public static implicit operator DiscordMember(XanBotMember src) {
