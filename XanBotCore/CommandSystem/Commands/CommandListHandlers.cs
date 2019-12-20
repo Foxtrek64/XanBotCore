@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using XanBotCore.Exceptions;
 using XanBotCore.PassiveHandlers;
 using XanBotCore.Permissions;
 using XanBotCore.ServerRepresentation;
@@ -17,11 +18,7 @@ namespace XanBotCore.CommandSystem.Commands {
 
 		public override string Description { get; } = "Lists all passive handlers that are currently active. Passive handlers are like commands, but they run based on any applicable message (not just commands)";
 
-		public override string Syntax {
-			get {
-				return Name + " [handlerName]";
-			}
-		}
+		public override string Syntax => Name + " [handlerName]";
 
 		public override byte RequiredPermissionLevel { get; } = PermissionRegistry.PERMISSION_LEVEL_STANDARD_USER;
 
@@ -43,6 +40,8 @@ namespace XanBotCore.CommandSystem.Commands {
 					}
 				}
 				await ResponseUtil.RespondToAsync(originalMessage, "There is no Passive Handler with the name " + args[0] + "\n(If there's a space in the name, try adding quotation marks around the name!)");
+			} else {
+				throw new CommandException(this, "Invalid amount of command arguments. Try putting quotation marks around the name of the handler.");
 			}
 		}
 	}
