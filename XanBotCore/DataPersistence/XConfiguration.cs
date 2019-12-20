@@ -69,10 +69,15 @@ namespace XanBotCore.DataPersistence {
 		/// <param name="defaultValue">The default value if the config key doesn't exist or if the data is malformed.</param>
 		public T TryGetType<T>(string configKey, T defaultValue) {
 			string v = GetConfigurationValue(configKey, defaultValue.ToString(), true, true);
-			T retn;
-			if (!TryParse(v, out retn)) {
+			if (!TryParse(v, out T retn)) {
 				retn = defaultValue;
-				SetConfigurationValue(configKey, defaultValue.ToString());
+
+				string defValueStr = defaultValue.ToString();
+				if (defaultValue.GetType() == typeof(bool)) {
+					// This is to ensure it formats properly in >> config list
+					defValueStr = defValueStr.ToLower();
+				}
+				SetConfigurationValue(configKey, defValueStr);
 			}
 			return retn;
 		}
@@ -87,7 +92,12 @@ namespace XanBotCore.DataPersistence {
 		public void GetAndMandateType<T>(string configKey, T defaultValue, out T value) {
 			string v = GetConfigurationValue(configKey, defaultValue.ToString(), true, true);
 			if (!TryParse(v, out T retn)) {
-				SetConfigurationValue(configKey, defaultValue.ToString());
+				string defValueStr = defaultValue.ToString();
+				if (defaultValue.GetType() == typeof(bool)) {
+					// This is to ensure it formats properly in >> config list
+					defValueStr = defValueStr.ToLower();
+				}
+				SetConfigurationValue(configKey, defValueStr);
 				value = defaultValue;
 				throw new MalformedConfigDataException($"WARNING: Config key `{configKey}` attempted to read the value from the configuration file, but it failed! Reason: Could not cast `{v}` into type {typeof(T).Name}. It has been set to its default value of {defaultValue.ToString()}");
 			}
