@@ -231,26 +231,31 @@ namespace XanBotCore.CommandSystem {
 
 			if (execCommand != null) {
 				if (execCommand.CanUseCommand(member)) {
-					try {
-						string allArgsText = "";
-						if (args.Length > 0) {
-							allArgsText = text.Substring(command.Length + 1);
+					if (execCommand.CanUseCommandInThisChannel(member, originalMessage.Channel)) {
+						try {
+							string allArgsText = "";
+							if (args.Length > 0) {
+								allArgsText = text.Substring(command.Length + 1);
+							}
+							originalMessage.Channel.TriggerTypingAsync().GetAwaiter().GetResult();
+							await execCommand.ExecuteCommandAsync(commandContext, member, originalMessage, args, allArgsText);
+							XanBotLogger.WriteLine(string.Format("§aUser \"§6{0}§a\" issued command \"§6{1}§a\" with args {2}", member.FullName, command, ArrayToText(args)));
+						} catch (CommandException commandErr) {
+							string message = string.Format("§cFailed to issue command `{0}`: §1{1}", commandErr.Command.Name, commandErr.Message);
+							await ResponseUtil.RespondToAsync(originalMessage, message);
+
+							XanBotLogger.WriteLine(string.Format("§aUser \"§6{0}§a\" attempted to issue command \"§6{1}§a\" but it failed. The command gave the reason: §2{2}", member.FullName, commandErr.Command.Name, commandErr.Message));
+						} catch (ArchonCommandException commandErr) {
+							string message = string.Format("§cFailed to issue Archon Command `{0}`: §1{1}", commandErr.Command.Name, commandErr.Message);
+							await ResponseUtil.RespondToAsync(originalMessage, message);
+
+							XanBotLogger.WriteLine(string.Format("§aUser \"§6{0}§a\" attempted to issue Archon Command \"§6{1}§a\" but it failed. The command gave the reason: §2{2}", member.FullName, commandErr.Command.Name, commandErr.Message));
+						} catch (TaskCanceledException taskCancel) {
+							XanBotLogger.WriteException(taskCancel);
 						}
-						originalMessage.Channel.TriggerTypingAsync().GetAwaiter().GetResult();
-						await execCommand.ExecuteCommandAsync(commandContext, member, originalMessage, args, allArgsText);
-						XanBotLogger.WriteLine(string.Format("§aUser \"§6{0}§a\" issued command \"§6{1}§a\" with args {2}", member.FullName, command, ArrayToText(args)));
-					} catch (CommandException commandErr) {
-						string message = string.Format("§cFailed to issue command `{0}`: §1{1}", commandErr.Command.Name, commandErr.Message);
+					} else {
+						string message = string.Format("You can't use this command here. Try going to the bot channel.");
 						await ResponseUtil.RespondToAsync(originalMessage, message);
-
-						XanBotLogger.WriteLine(string.Format("§aUser \"§6{0}§a\" attempted to issue command \"§6{1}§a\" but it failed. The command gave the reason: §2{2}", member.FullName, commandErr.Command.Name, commandErr.Message));
-					} catch (ArchonCommandException commandErr) {
-						string message = string.Format("§cFailed to issue Archon Command `{0}`: §1{1}", commandErr.Command.Name, commandErr.Message);
-						await ResponseUtil.RespondToAsync(originalMessage, message);
-
-						XanBotLogger.WriteLine(string.Format("§aUser \"§6{0}§a\" attempted to issue Archon Command \"§6{1}§a\" but it failed. The command gave the reason: §2{2}", member.FullName, commandErr.Command.Name, commandErr.Message));
-					} catch (TaskCanceledException taskCancel) {
-						XanBotLogger.WriteException(taskCancel);
 					}
 				} else {
 					string message = string.Format("You are not authorized to use `{0}`. It is only available to `{1}` and above (You are at `{2}`)", execCommand.Name, execCommand.RequiredPermissionLevel, member.PermissionLevel);
@@ -268,14 +273,20 @@ namespace XanBotCore.CommandSystem {
 		/// </summary>
 		/// <param name="originalMessage">The chat message.</param>
 		public static async Task RunPassiveHandlersForMessage(DiscordMessage originalMessage) {
-			if (originalMessage == null) return;
-
 			BotContext targetContext = BotContextRegistry.GetContext(originalMessage.Channel.Guild);
 			XanBotMember sender = XanBotMember.GetMemberFromUser(targetContext, originalMessage.Author);
+
 			if (!targetContext.Virtual) {
 				foreach (PassiveHandler handler in targetContext.ContextSpecificHandlers) {
-					if (await handler.RunHandlerAsync(targetContext, sender, originalMessage)) return;
+					XanBotLogger.WriteDebugLine(handler.Name);
+					if (await handler.RunHandlerAsync(targetContext, sender, originalMessage)) {
+						XanBotLogger.WriteDebugLine("... returned true");
+						return;
+					}
+					XanBotLogger.WriteDebugLine("... returned false");
 				}
+			} else {
+				XanBotLogger.WriteDebugLine("Target context is virtual. Skipping passive handlers.");
 			}
 		}
 

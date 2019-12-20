@@ -46,6 +46,16 @@ namespace XanBotCore.CommandSystem {
 		}
 
 		/// <summary>
+		/// Returns true if the specified member can use this command in the specified channel.
+		/// </summary>
+		/// <param name="member">The member using this command.</param>
+		/// <param name="channel">The channel they are trying to use the command in.</param>
+		/// <returns></returns>
+		public virtual bool CanUseCommandInThisChannel(XanBotMember member, DiscordChannel channel) {
+			return true;
+		}
+
+		/// <summary>
 		/// Executes the command. This does not check if the user can run it. Check if the user is authorized before using this method.
 		/// </summary>
 		/// <param name="context">The <see cref="BotContext"/> that this command is running in.</param>
