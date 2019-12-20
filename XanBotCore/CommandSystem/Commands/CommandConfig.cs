@@ -21,6 +21,7 @@ namespace XanBotCore.CommandSystem.Commands {
 			get {
 				return	Name + " <get> <key>\n" +
 						Name + " <set> <key> <value>\n" +
+						Name + " <remove> <key>\n" +
 						Name + " <list>";
 			}
 		}
@@ -38,15 +39,15 @@ namespace XanBotCore.CommandSystem.Commands {
 
 				// >> config list
 				if (subCommand == "list") {
-					string message = "**Configuration Values:**\n```\n";
+					string message = "**Configuration Values:**\n```lua\n";
 					string[] keys = targetConfig.GetConfigurationKeys();
 					foreach (string key in keys) {
-						message += "[" + key + "]=" + targetConfig.GetConfigurationValue(key) + "\n";
+						message += "[\"" + key + "\"]=" + targetConfig.GetConfigurationValue(key) + "\n";
 					}
 					message += "```";
 					await ResponseUtil.RespondToAsync(originalMessage, message);
 
-				// >> config get
+					// >> config get
 				} else if (subCommand == "get") {
 					if (args.Length != 2) {
 						throw new CommandException(this, "Expected two arguments for operation \"get\" -- get <key>");
@@ -61,7 +62,7 @@ namespace XanBotCore.CommandSystem.Commands {
 						await ResponseUtil.RespondToAsync(originalMessage, "The specified key does not exist in the configuration.");
 					}
 
-				// >> config set
+					// >> config set
 				} else if (subCommand == "set") {
 					if (args.Length != 3) {
 						throw new CommandException(this, "Expected two arguments for operation \"set\" -- set <key> <value>");
@@ -72,9 +73,24 @@ namespace XanBotCore.CommandSystem.Commands {
 					targetConfig.SetConfigurationValue(args[1], args[2]);
 					await ResponseUtil.RespondToAsync(originalMessage, "Set [`" + args[1] + "`] to: `" + args[2] + "`");
 
-				// something else
+					// >> config remove
+				} else if (subCommand == "remove") {
+					if (args.Length != 2) {
+						throw new CommandException(this, "Expected two arguments for operation \"remove\" -- remove <key>");
+					}
+					if (args[1].Contains(' ')) {
+						throw new CommandException(this, "Config keys cannot contain spaces.");
+					}
+					bool wasRemoved = targetConfig.RemoveConfigurationValue(args[1]);
+					if (wasRemoved) {
+						await ResponseUtil.RespondToAsync(originalMessage, $"Removed configuration entry `{args[1]}`");
+					} else {
+						await ResponseUtil.RespondToAsync(originalMessage, $"Could not remove configuration entry `{args[1]}` -- it doesn't exist in the first place.");
+					}
+
+					// something else
 				} else {
-					throw new CommandException(this, string.Format("Invalid operation \"{0}\" (expected get, set, or list)", subCommand));
+					throw new CommandException(this, string.Format("Invalid operation \"{0}\" (expected get, set, remove, or list)", subCommand));
 				}
 			}
 		}
