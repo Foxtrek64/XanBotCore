@@ -91,8 +91,7 @@ namespace XanBotCore {
 			} else {
 				Client = new DiscordClient(new DiscordConfiguration {
 					Token = botToken,
-					TokenType = TokenType.Bot,
-					WebSocketClientFactory = new WebSocketClientFactoryDelegate(WebSocketClient.CreateNew), // Remove if this bot is running on machine with Windows 10.
+					TokenType = TokenType.Bot
 				});
 			}
 			XanBotLogger.WriteDebugLine("Created DiscordClient.");
@@ -113,6 +112,7 @@ namespace XanBotCore {
 
 			XanBotLogger.WriteLine("§2Connecting CommandMarshaller to chat events...");
 			Client.MessageCreated += async evt => {
+				//XanBotLogger.WriteLine("Hey the message created event fired");
 				if (evt.Author == Client.CurrentUser) return;
 				if (evt.Author.IsBot) return;
 				if (CommandMarshaller.IsCommand(evt.Message.Content)) {
@@ -205,13 +205,13 @@ namespace XanBotCore {
 		/// Whether or not this application is running in debug mode or not.<para/>
 		/// /// CURRENT STATE: TRUE ///
 		/// </summary>
-		public static readonly bool IsDebugMode = true;
+		public static bool IsDebugMode { get; } = true;
 #else
 		/// <summary>
 		/// Whether or not this application is running in debug mode or not.<para/>
 		/// /// CURRENT STATE: FALSE ///
 		/// </summary>
-		public static readonly bool IsDebugMode = false;
+		public static bool IsDebugMode { get; } = false;
 #endif
 	}
 }
