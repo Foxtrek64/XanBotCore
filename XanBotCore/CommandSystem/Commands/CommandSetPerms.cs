@@ -16,11 +16,7 @@ namespace XanBotCore.CommandSystem.Commands {
 
 		public override string Description { get; } = "Sets the specified user's permissions. For security reasons, this requires the user's ID. See <https://support.discordapp.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID->";
 
-		public override string Syntax {
-			get {
-				return Name + " <user GUID> <newPermissionLevel>";
-			}
-		}
+		public override string Syntax => Name + " <user GUID> <newPermissionLevel>";
 
 		public override byte RequiredPermissionLevel { get; } = PermissionRegistry.PERMISSION_LEVEL_OPERATOR;
 

@@ -23,7 +23,7 @@ namespace XanBotCore.CommandSystem.Commands {
 
 		public override string Description { get; } = "Offers commands intended for low-level control of the bot.";
 
-		public override string Syntax => Name + " <cmd> [cmdArgs]`\nUse `archoncmd help` to get a list of Archon Commands.";
+		public override string Syntax => Name + " <cmd> [cmdArgs]`\nUse `{0}archoncmd help` to get a list of Archon Commands.";
 
 		public override byte RequiredPermissionLevel { get; } = PermissionRegistry.PERMISSION_LEVEL_ADMINISTRATOR;
 

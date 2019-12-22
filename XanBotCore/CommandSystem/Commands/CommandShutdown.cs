@@ -19,11 +19,7 @@ namespace XanBotCore.CommandSystem.Commands {
 
 		public override string Description { get; } = "Shuts down the bot";
 
-		public override string Syntax {
-			get {
-				return Name;
-			}
-		}
+		public override string Syntax => Name;
 
 		public override byte RequiredPermissionLevel { get; } = PermissionRegistry.PERMISSION_LEVEL_ADMINISTRATOR;
 
