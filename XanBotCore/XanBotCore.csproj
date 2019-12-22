@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandSystem\Commands\ArchonCommands\ArchonCommandCurrentContext.cs" />
+    <Compile Include="CommandSystem\Commands\ArchonCommands\ArchonCommandForcePerms.cs" />
     <Compile Include="CommandSystem\Commands\ArchonCommands\ArchonCommandHelp.cs" />
     <Compile Include="Exceptions\MalformedConfigDataException.cs" />
     <Compile Include="Logging\ConsoleColorVT.cs" />
