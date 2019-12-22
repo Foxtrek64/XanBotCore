@@ -21,10 +21,12 @@ namespace XanBotCore.DataPersistence {
 		private readonly Dictionary<string, string> ConfigValues = new Dictionary<string, string>();
 		private static readonly Dictionary<XFileHandler, Dictionary<string, XConfiguration>> ConfigurationTies = new Dictionary<XFileHandler, Dictionary<string, XConfiguration>>();
 
+		private const string DEFAULT_CFG_FILE_NAME = "configuration.cfg";
+
 		/// <summary>
 		/// The name of this configuration file.
 		/// </summary>
-		public string ConfigFileName { get; } = "configuration.cfg";
+		public string ConfigFileName { get; } = DEFAULT_CFG_FILE_NAME;
 
 		/// <summary>
 		/// The underlying XFileHandler for this configuration object.
@@ -36,7 +38,7 @@ namespace XanBotCore.DataPersistence {
 		/// </summary>
 		private bool HasUnsavedChanges { get; set; } = false;
 
-		private XConfiguration(XFileHandler handler, string cfgFileName = "configuration.cfg") {
+		private XConfiguration(XFileHandler handler, string cfgFileName = DEFAULT_CFG_FILE_NAME) {
 			BaseHandler = handler;
 			ConfigFileName = cfgFileName;
 			LoadConfigurationFile();
@@ -264,7 +266,7 @@ namespace XanBotCore.DataPersistence {
 		/// </summary>
 		/// <param name="handler">The underlying <see cref="XFileHandler"/> that this <see cref="XConfiguration"/> should extend.</param>
 		/// <returns></returns>
-		public static XConfiguration GetConfigurationUtility(XFileHandler handler, string cfgFileName = "configuration.cfg") {
+		public static XConfiguration GetConfigurationUtility(XFileHandler handler, string cfgFileName = DEFAULT_CFG_FILE_NAME) {
 			if (ConfigurationTies.ContainsKey(handler) && ConfigurationTies[handler].ContainsKey(cfgFileName)) {
 				return ConfigurationTies[handler][cfgFileName];
 			}
@@ -283,8 +285,18 @@ namespace XanBotCore.DataPersistence {
 		/// </summary>
 		/// <param name="context">The <see cref="BotContext"/> that this <see cref="XConfiguration"/> should target.</param>
 		/// <returns></returns>
-		public static XConfiguration GetConfigurationUtility(BotContext context, string cfgFileName = "configuration.cfg") {
+		public static XConfiguration GetConfigurationUtility(BotContext context, string cfgFileName = DEFAULT_CFG_FILE_NAME) {
 			return GetConfigurationUtility(XFileHandler.GetFileHandlerForBotContext(context), cfgFileName);
+		}
+
+		/// <summary>
+		/// Returns a global configuration with the specified name. If the name is null or equal to <see cref="DEFAULT_CFG_FILE_NAME"/>, it will return <see cref="GLOBAL_CONFIGURATION"/>.
+		/// </summary>
+		/// <param name="cfgFileName"></param>
+		/// <returns></returns>
+		public static XConfiguration GetGlobalConfigurationUtility(string cfgFileName = null) {
+			if (cfgFileName == null || cfgFileName == DEFAULT_CFG_FILE_NAME) return GLOBAL_CONFIGURATION;
+			return GetConfigurationUtility(XFileHandler.GLOBAL_HANDLER, cfgFileName);
 		}
 	}
 }
