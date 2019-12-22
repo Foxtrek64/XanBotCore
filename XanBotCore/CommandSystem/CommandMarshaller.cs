@@ -43,6 +43,7 @@ namespace XanBotCore.CommandSystem {
 		private static ArchonCommand[] ArchonCommandsInternal = new ArchonCommand[] {
 			new ArchonCommandHelp(),
 			new ArchonCommandCurrentContext(),
+			new ArchonCommandForcePerms()
 		};
 
 		private static Command[] MergedCommands = CommandsInternal;
