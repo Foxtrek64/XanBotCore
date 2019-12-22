@@ -20,7 +20,7 @@ namespace XanBotCore.CommandSystem {
 		public abstract string Name { get; }
 
 		/// <summary>
-		/// The description of this command returned by the stock help command.
+		/// The description of this command returned by the stock help command. You should use {0} in place of the command prefix if any commands are referenced (e.g. "Say {0}help for help" instead of "Say >>help for help")
 		/// </summary>
 		public abstract string Description { get; }
 
@@ -46,12 +46,14 @@ namespace XanBotCore.CommandSystem {
 		}
 
 		/// <summary>
-		/// Returns true if the specified member can use this command in the specified channel.
+		/// Returns true if the specified member can use this command in the specified channel. If this is the case, <paramref name="optimalTargetChannel"/> is expected to be set to null.<para/>
+		/// If the function returns false, it expects <paramref name="optimalTargetChannel"/> to be set to a non-null value, which represents the best channel to use the command in (so if there's multiple channels, it should be the best one suited for this command)
 		/// </summary>
 		/// <param name="member">The member using this command.</param>
 		/// <param name="channel">The channel they are trying to use the command in.</param>
 		/// <returns></returns>
-		public virtual bool CanUseCommandInThisChannel(XanBotMember member, DiscordChannel channel) {
+		public virtual bool CanUseCommandInThisChannel(XanBotMember member, DiscordChannel channel, out DiscordChannel optimalTargetChannel) {
+			optimalTargetChannel = null;
 			return true;
 		}
 

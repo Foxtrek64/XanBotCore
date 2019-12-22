@@ -21,13 +21,14 @@ namespace XanBotCore.CommandSystem {
 	public class CommandMarshaller {
 
 		/// <summary>The command prefix that must be used in the Discord chat in order to issue commands.</summary>
-		public static readonly string COMMAND_PREFIX = ">> ";
+		public static string CommandPrefix { get; set; } = ">>";
+
+		/// <summary>Set to true if the prefix can have spaces after it. Default value is true.</summary>
+		public static bool AllowSpacesAfterPrefix { get; set; } = true;
 
 		/// <summary>Stores whether or not the get method of Commands has sorted the command array in order from lowest permissions to highest permissions.</summary>
 		private static bool HasSortedCommands = false;
 		private static bool HasSortedArchonCommands = false;
-
-		/// <summary>Stores whether or not the array of commands has been registered.</summary>
 
 		/// <summary>The internal array of available commands in this bot. Any commands not specified here will not be usable during runtime.</summary>
 		private static Command[] CommandsInternal = new Command[] {
@@ -119,7 +120,7 @@ namespace XanBotCore.CommandSystem {
 		}
 
 		/// <summary>
-		/// An array of all user-specified global archon commands. If an archon command only needs to exist in one server, use the context's property instead.<para/>
+		/// An array of all user-specified global archon commands. Contrary to stock <see cref="Command"/> objects, <see cref="ArchonCommand"/>s can NOT exist in specific contexts as they apply to low level bot controls.<para/>
 		/// Reference <see cref="ArchonCommands"/> for an array storing both stock archon commands and all user-specified archon commands.
 		/// </summary>
 		public static ArchonCommand[] UserArchonCommands {
@@ -185,10 +186,10 @@ namespace XanBotCore.CommandSystem {
 
 			XanBotMember member = XanBotMember.GetMemberFromUser(commandContext, author);
 			string text = originalMessage.Content;
-			if (text.ToLower().StartsWith(COMMAND_PREFIX.ToLower())) {
-				text = text.Substring(COMMAND_PREFIX.Length);
+			if (text.ToLower().StartsWith(CommandPrefix.ToLower())) {
+				text = text.Substring(CommandPrefix.Length);
 			}
-			while (text.StartsWith(" ")) {
+			while (AllowSpacesAfterPrefix && text.StartsWith(" ")) {
 				text = text.Substring(1);
 			}
 			string[] allArgs = ArgumentSplitter.SplitArgs(text);
@@ -231,7 +232,7 @@ namespace XanBotCore.CommandSystem {
 
 			if (execCommand != null) {
 				if (execCommand.CanUseCommand(member)) {
-					if (execCommand.CanUseCommandInThisChannel(member, originalMessage.Channel)) {
+					if (execCommand.CanUseCommandInThisChannel(member, originalMessage.Channel, out DiscordChannel optimalTargetChannel)) {
 						try {
 							string allArgsText = "";
 							if (args.Length > 0) {
@@ -254,7 +255,7 @@ namespace XanBotCore.CommandSystem {
 							XanBotLogger.WriteException(taskCancel);
 						}
 					} else {
-						string message = string.Format("You can't use this command here. Try going to the bot channel.");
+						string message = string.Format($"You can't use this command here. Go to <#{optimalTargetChannel.Id}> instead.");
 						await ResponseUtil.RespondToAsync(originalMessage, message);
 					}
 				} else {
@@ -296,8 +297,8 @@ namespace XanBotCore.CommandSystem {
 		/// <param name="text">The message text.</param>
 		/// <returns>Whether or not the text is formatted as a command.</returns>
 		public static bool IsCommand(string text) {
-			if (!text.ToLower().StartsWith(COMMAND_PREFIX.ToLower())) return false;
-			if (text.Length <= COMMAND_PREFIX.Length) return false;
+			if (text.Length <= CommandPrefix.Length) return false;
+			if (!text.ToLower().StartsWith(CommandPrefix.ToLower())) return false;
 			return true;
 		}
 
