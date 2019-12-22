@@ -16,6 +16,17 @@ namespace XanBotCore.Utility {
 	/// </summary>
 	public class UserGetter {
 
+		//private static bool HasAcquiredAllMembers { get; set; } = false;
+
+		private static DateTime LastCheckTime = DateTime.MinValue;
+
+		/// <summary>
+		/// Whether or not the member cache needs to be repopulated.
+		/// </summary>
+		private static bool NeedsNewMemberCache => (DateTime.Now - LastCheckTime).TotalMinutes >= 5;
+
+		private static IReadOnlyCollection<DiscordMember> Members { get; set; } = null;
+
 		/// <summary>
 		/// Attempts to get a member via three distinct methods: <para/>
 		/// First, it will attempt to cast <paramref name="data"/> into a ulong and see if it is a user GUID (this includes processing pings, like &lt;@GUID_HERE&gt;)<para/>
@@ -65,7 +76,12 @@ namespace XanBotCore.Utility {
 
 			if (potentialReturns.Count == 0) {
 				// ONLY if discriminator searching found nothing will we search by display name or username.
-				foreach (DiscordMember member in server.Members.Values) {
+				if (NeedsNewMemberCache) {
+					LastCheckTime = DateTime.Now;
+					Members = await server.GetAllMembersAsync();
+				}
+				foreach (DiscordMember member in Members) {
+				//foreach (DiscordMember member in server.Members.Values) { // DO NOT USE THIS. It's not fully populated in large servers.
 					string fullName = member.Username + "#" + member.Discriminator;
 					string nickName = member.Nickname ?? "";
 
