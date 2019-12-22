@@ -122,16 +122,15 @@ namespace XanBotCore.ServerRepresentation {
 		/// </summary>
 		/// <returns></returns>
 		public override string ToString() {
-			string ret = "BotContext Information\n"
-				+ $"> Context Name: {Name}\n"
-				+ $"> Data Persistence Name: {DataPersistenceName}\n"
-				+ $"> Target Server: {ServerId} ({Server.Name})\n";
+			string ret = $"=> Context Name: {Name}\n"
+				+ $"=> Data Persistence Name: {DataPersistenceName}\n"
+				+ $"=> Target Server: {ServerId} ({Server.Name})\n";
 			if (BotRole != null) {
-				ret += $"> Bot Role: {BotRole?.Id} ({BotRole?.Name})\n";
+				ret += $"=> Bot Role: {BotRole?.Id} ({BotRole?.Name})\n";
 			} else {
-				ret += "Bot Role: N/A\n";
+				ret += "=> Bot Role: N/A\n";
 			}
-			ret += $"> Is Virtual Context: {Virtual}";
+			ret += $"=> Is Virtual Context: {Virtual}";
 			return ret;
 		}
 
