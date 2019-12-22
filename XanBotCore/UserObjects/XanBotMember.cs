@@ -60,7 +60,7 @@ namespace XanBotCore.UserObjects {
 			set {
 				if (BaseUser == XanBotCoreSystem.Client.CurrentUser) return; // Stop if we're modifying the bot
 				if (PermissionLevelInternal == value) return; //Stop if it's the same
-				XanBotLogger.WriteLine("§aPermission Level of user \"§6" + FullName + "\"§a changed from §e" + PermissionLevelInternal + "§a to §e" + value + "§a.");
+				XanBotLogger.WriteLine("§aPermission Level of user \"§6" + FullName + "\"§a changed from §e" + PermissionLevelInternal + "§a to §e" + value + "§a in context §6" + Context.Name);
 				PermissionLevelInternal = value;
 
 				// It is IMPERATIVE that this is after PermissionLevelInternal = value (because the method references this property)
@@ -280,11 +280,11 @@ namespace XanBotCore.UserObjects {
 		}
 
 		/// <summary>
-		/// Calls <see cref="ToString(DisplayType)"/> with an argument of <see cref="DiscordUserExtensions.DisplayType.UserId"/>
+		/// Calls <see cref="ToString(DisplayType)"/> with an argument of <see cref="DiscordUserExtensions.DisplayType.NicknameUserId"/>
 		/// </summary>
 		/// <returns></returns>
 		public override string ToString() {
-			return ToString(DisplayType.UserId);
+			return ToString(DisplayType.NicknameUserId);
 		}
 
 		/// <summary>
@@ -294,14 +294,15 @@ namespace XanBotCore.UserObjects {
 		/// <param name="displayType"></param>
 		/// <returns></returns>
 		public string ToString(DisplayType displayType) {
-			return BaseUser.GetFormattedUser(displayType);
+			return Member.GetFormattedMember(displayType);
 		}
 
 		public DiscordEmbed ToEmbed() {
 			DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
 			builder.Title = "XanBotMember Info";
 			builder.Description = "Member: " + Mention;
-			builder.AddField("Context Name", Context.Name);
+			builder.AddField("Basic Information", $"**Display Name:** {DisplayName}\n**Username:** {Username}\n**Discriminator:** {Discriminator}\n**GUID:** {Id}");
+			builder.AddField("Parent Context", Context.ToString());
 			builder.AddField("Permission Level", PermissionLevel.ToString());
 			return builder.Build();
 		}
