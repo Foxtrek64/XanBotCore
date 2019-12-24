@@ -169,6 +169,15 @@ namespace XanBotCore.UserObjects {
 		}
 
 		/// <summary>
+		/// Create a <see cref="XanBotMember"/> from a <see cref="DiscordMember"/>
+		/// </summary>
+		/// <param name="member"></param>
+		/// <returns></returns>
+		public static XanBotMember GetMemberFromDiscordMember(DiscordMember member) {
+			return GetMemberFromUser(member.Guild, member);
+		}
+
+		/// <summary>
 		/// Returns a XanBotMember created from the data in a <seealso cref="ShallowXanBotMember"/>.
 		/// </summary>
 		/// <param name="shallow">The <seealso cref="ShallowXanBotMember"/> reference to create the member from.</param>

@@ -20,6 +20,11 @@ namespace XanBotCore.CommandSystem {
 		public abstract string Name { get; }
 
 		/// <summary>
+		/// An optional array of alternative command names that can be used to run the command.
+		/// </summary>
+		public virtual string[] AlternateNames { get; } = null;
+
+		/// <summary>
 		/// The description of this command returned by the stock help command. You should use {0} in place of the command prefix if any commands are referenced (e.g. "Say {0}help for help" instead of "Say >>help for help")
 		/// </summary>
 		public abstract string Description { get; }

@@ -43,6 +43,7 @@ namespace XanBotCore.CommandSystem.Commands.ArchonCommands {
 			}
 
 			await SetPermissionInContext(context, args);
+			await ResponseUtil.RespondToAsync(originalMessage, $"The permission level of user `{executingMember.FullName}` has been forced to {args[1]}.");
 		}
 
 		private async Task SetPermissionInContext(BotContext context, string[] args) {

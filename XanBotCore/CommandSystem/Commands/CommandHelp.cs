@@ -64,64 +64,100 @@ namespace XanBotCore.CommandSystem.Commands {
 				text += "```\n";
 
 				text = string.Format(text, CommandMarshaller.CommandPrefix);
-				
-				await ResponseUtil.RespondToAsync(originalMessage, text);
-			}
-			else if (args.Length == 1) {
-				string command = args[0];
-				foreach (Command cmd in CommandMarshaller.Commands) {
-					if (cmd.Name.ToLower() == command.ToLower()) {
-						int locatedGraves = 0;
-						foreach (char c in cmd.Syntax.ToCharArray()) {
-							if (c == '`') locatedGraves++;
-						}
 
-						string text = string.Format(
-								"**Command:** `{0}` \n{1}\n\n**Usage:** `{2}",
-								cmd.Name,
-								string.Format(cmd.Description, CommandMarshaller.CommandPrefix),
-								string.Format(cmd.Syntax, CommandMarshaller.CommandPrefix)
-							);
-						if (locatedGraves % 2 == 0) {
-							// Effectively what this does is prevents formatting issues from if users specify custom code formatting.
-							// They are expected to terminate the syntax code block manually in syntax.
-							// If they use an odd number of graves, it means that they have overridden it and we need to not include a trailing grave since that will show up.
-							text += '`';
-						}
-						await ResponseUtil.RespondToAsync(originalMessage, text);
+				await ResponseUtil.RespondToAsync(originalMessage, text);
+			} else if (args.Length == 1) {
+				string command = args[0];
+				string cmdLower = command.ToLower();
+				foreach (Command cmd in CommandMarshaller.Commands) {
+					if (cmd.Name.ToLower() == cmdLower) {
+						await ResponseUtil.RespondToAsync(originalMessage, GetFormattedCommandHelpInfo(cmd, cmd.Name));
 						return;
+					} else if (cmd.AlternateNames != null) {
+						foreach (string alt in cmd.AlternateNames) {
+							if (alt.ToLower() == cmdLower) {
+								await ResponseUtil.RespondToAsync(originalMessage, GetFormattedCommandHelpInfo(cmd, alt));
+								return;
+							}
+						}
 					}
 				}
 				if (context.ContextSpecificCommands.Length > 0) {
 					foreach (Command cmd in context.ContextSpecificCommands) {
-						if (cmd.Name.ToLower() == command.ToLower()) {
-							int locatedGraves = 0;
-							foreach (char c in cmd.Syntax.ToCharArray()) {
-								if (c == '`') locatedGraves++;
-							}
-
-							string text = string.Format(
-								"**Command:** `{0}` \n{1}\n\n**Usage:** `{2}",
-								cmd.Name,
-								string.Format(cmd.Description, CommandMarshaller.CommandPrefix),
-								string.Format(cmd.Syntax, CommandMarshaller.CommandPrefix)
-							);
-							if (locatedGraves % 2 == 0) {
-								// Effectively what this does is prevents formatting issues from if users specify custom code formatting.
-								// They are expected to terminate the syntax code block manually in syntax.
-								// If they use an odd number of graves, it means that they have overridden it and we need to not include a trailing grave since that will show up.
-								text += '`';
-							}
-							await ResponseUtil.RespondToAsync(originalMessage, text);
+						if (cmd.Name.ToLower() == cmdLower) {
+							await ResponseUtil.RespondToAsync(originalMessage, GetFormattedCommandHelpInfo(cmd, cmd.Name));
 							return;
+						} else if (cmd.AlternateNames != null) {
+							foreach (string alt in cmd.AlternateNames) {
+								if (alt.ToLower() == cmdLower) {
+									await ResponseUtil.RespondToAsync(originalMessage, GetFormattedCommandHelpInfo(cmd, alt));
+									return;
+								}
+							}
 						}
 					}
 				}
 				throw new CommandException(this, "Command `" + command + "` does not exist.");
-			}
-			else {
+			} else {
 				throw new CommandException(this, "Invalid argument count. Expected no arguments, or one argument which is the name of the command you wish to get details on.");
 			}
+		}
+
+		public string GetFormattedCommandHelpInfo(Command cmd, string indexedBy) {
+			int locatedGraves = 0;
+			foreach (char c in cmd.Syntax.ToCharArray()) {
+				if (c == '`') locatedGraves++;
+			}
+
+			string text = string.Format(
+				"**Command:** `{0}` \n{1}\n\n**Usage:** `{2}",
+				cmd.Name,
+				string.Format(cmd.Description, CommandMarshaller.CommandPrefix),
+				string.Format(cmd.Syntax, CommandMarshaller.CommandPrefix)
+			);
+			if (locatedGraves % 2 == 0) {
+				// Effectively what this does is prevents formatting issues from if users specify custom code formatting.
+				// They are expected to terminate the syntax code block manually in syntax.
+				// If they use an odd number of graves, it means that they have overridden it and we need to not include a trailing grave since that will show up.
+				text += '`';
+			}
+
+			string alsoIndexedBy = null;
+			if (cmd.AlternateNames != null) {
+				if (indexedBy.ToLower() == cmd.Name.ToLower()) {
+					alsoIndexedBy = StrArrayToFormatedList(cmd.AlternateNames);
+				} else {
+					alsoIndexedBy = "`" + cmd.Name + "`";
+					if (cmd.AlternateNames.Length > 1) {
+						alsoIndexedBy += ", "; // If it's 1, then that means there's no other names to show so it's just gonna be the command's name.
+						foreach (string alt in cmd.AlternateNames) {
+							if (alt.ToLower() != indexedBy.ToLower()) {
+								alsoIndexedBy += "`" + alt + "`";
+								if (alt != cmd.AlternateNames.Last()) {
+									alsoIndexedBy += ", ";
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if (alsoIndexedBy != null) {
+				text += "\n**Can also be run with:** " + alsoIndexedBy;
+			}
+
+			return text;
+		}
+
+		private static string StrArrayToFormatedList(string[] list) {
+			string o = "";
+			foreach (string s in list) {
+				o += "`" + s + "`";
+				if (s != list.Last()) {
+					o += ", ";
+				}
+			}
+			return o;
 		}
 	}
 }

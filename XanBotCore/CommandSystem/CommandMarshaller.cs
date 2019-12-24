@@ -150,10 +150,20 @@ namespace XanBotCore.CommandSystem {
 				args = allArgs.Skip(1).ToArray();
 			}
 			Command execCommand = null;
+			string cmdLower = command.ToLower();
 			foreach (Command cmd in Commands) {
-				if (cmd.Name.ToLower() == command.ToLower()) {
+				if (cmd.Name.ToLower() == cmdLower) {
 					execCommand = cmd;
 					break;
+				} else {
+					if (cmd.AlternateNames != null) {
+						foreach (string altName in cmd.AlternateNames) {
+							if (altName.ToLower() == cmdLower) {
+								execCommand = cmd;
+								break;
+							}
+						}
+					}
 				}
 			}
 			if (execCommand != null) {
@@ -211,12 +221,22 @@ namespace XanBotCore.CommandSystem {
 
 			XanBotLogger.WriteDebugLine("Searching for command...");
 			Command execCommand = null;
+			string cmdLower = command.ToLower();
 			// Search the context FIRST. That ensures that context commands can override stock commands.
 			foreach (Command cmd in commandContext.ContextSpecificCommands) {
-				if (cmd.Name.ToLower() == command.ToLower()) {
+				if (cmd.Name.ToLower() == cmdLower) {
 					execCommand = cmd;
 					XanBotLogger.WriteDebugLine($"Found command [{cmd.Name}] in context.");
 					break;
+				} else {
+					if (cmd.AlternateNames != null) {
+						foreach (string altName in cmd.AlternateNames) {
+							if (altName.ToLower() == cmdLower) {
+								execCommand = cmd;
+								break;
+							}
+						}
+					}
 				}
 			}
 
