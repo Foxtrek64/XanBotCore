@@ -31,7 +31,7 @@ namespace XanBotCore.Utility {
 		/// <param name="forceWriteToConsole">If true, this text will be written to the console even if <paramref name="message"/> is not null.</param>
 		/// <param name="allowEveryoneAndHere">If true, any messages sent via this response can use @everyone and @here (This is false by default to prevent any commands that repeat user chats from being disruptive)</param>
 		/// <returns>The response message, if applicable. Will be null if <paramref name="message"/> is null.</returns>
-		public static Task<DiscordMessage> RespondToAsync(DiscordMessage message, string text, bool forceWriteToConsole = false, bool allowEveryoneAndHere = false) {
+		public static async Task<DiscordMessage> RespondToAsync(DiscordMessage message, string text, bool forceWriteToConsole = false, bool allowEveryoneAndHere = false) {
 			// Most of the code here is recycled from my personal bot, e.g. the forceAllowMassPing boolean.
 			string msgText = text;
 			if (!allowEveryoneAndHere) msgText = StripMassPings(msgText);
@@ -41,7 +41,7 @@ namespace XanBotCore.Utility {
 					msgText = XanBotLogger.StripColorFormattingCode(text);
 				}
 
-				return message.RespondAsync(msgText);
+				return await message.RespondAsync(msgText);
 			}
 			if (forceWriteToConsole || message == null) {
 				text = text.Replace("```", ""); // There may be more stuff to do, but this just makes it better for display in the console.
@@ -57,8 +57,8 @@ namespace XanBotCore.Utility {
 		/// <param name="message">The <see cref="DiscordMessage"/> to respond to. If this is null, nothing will happen. </param>
 		/// <param name="response">The <see cref="DiscordEmbed"/> to respond with.</param>
 		/// <returns></returns>
-		public static Task<DiscordMessage> RespondToAsync(DiscordMessage message, DiscordEmbed response) {
-			if (message != null) return message.RespondAsync(embed: response);
+		public static async Task<DiscordMessage> RespondToAsync(DiscordMessage message, DiscordEmbed response) {
+			if (message != null) return await message.RespondAsync(embed: response);
 			return null;
 		}
 
@@ -68,8 +68,8 @@ namespace XanBotCore.Utility {
 		/// <param name="message">The <see cref="DiscordMessage"/> to respond to. If this is null, nothing will happen. </param>
 		/// <param name="embeddableObject">The <see cref="IEmbeddable"/> that provides a <see cref="DiscordEmbed"/> to respond with.</param>
 		/// <returns></returns>
-		public static Task<DiscordMessage> RespondToAsync(DiscordMessage message, IEmbeddable embeddableObject) {
-			if (message != null) return message.RespondAsync(embed: embeddableObject.ToEmbed());
+		public static async Task<DiscordMessage> RespondToAsync(DiscordMessage message, IEmbeddable embeddableObject) {
+			if (message != null) return await message.RespondAsync(embed: embeddableObject.ToEmbed());
 			return null;
 		}
 
@@ -82,14 +82,14 @@ namespace XanBotCore.Utility {
 		/// <param name="tryFormattingForConsole">If true, this will strip certain formatting information off of messages that won't work in the console, like ``` for code blocks.</param>
 		/// <param name="allowEveryoneAndHere">If true, any messages sent via this response can use @everyone and @here (This is false by default to prevent any commands that repeat user chats from being disruptive)</param>
 		/// <returns></returns>
-		public static Task<DiscordMessage> RespondInAsync(DiscordChannel channel, string text, bool forceWriteToConsole = false, bool tryFormattingForConsole = false, bool allowEveryoneAndHere = false) {
+		public static async Task<DiscordMessage> RespondInAsync(DiscordChannel channel, string text, bool forceWriteToConsole = false, bool tryFormattingForConsole = false, bool allowEveryoneAndHere = false) {
 			if (!allowEveryoneAndHere) text = StripMassPings(text);
 
 			if (XanBotLogger.MessageHasColors(text)) {
 				text = XanBotLogger.StripColorFormattingCode(text);
 			}
 
-			Task<DiscordMessage> responseTask = channel.SendMessageAsync(text);
+			DiscordMessage response= await channel.SendMessageAsync(text);
 
 			if (forceWriteToConsole) {
 				if (tryFormattingForConsole) {
@@ -98,7 +98,7 @@ namespace XanBotCore.Utility {
 				XanBotLogger.WriteLine(text, HasMassPings(text));
 			}
 
-			return responseTask;
+			return response;
 		}
 
 		/// <summary>
@@ -153,7 +153,8 @@ namespace XanBotCore.Utility {
 		public static string StripMassPings(string message) {
 			string noEveryone = Regex.Replace(message, "@everyone", "@" + INVISIBLE + "everyone", RegexOptions.IgnoreCase);
 			string noHere = Regex.Replace(noEveryone, "@here", "@" + INVISIBLE + "here", RegexOptions.IgnoreCase);
-			return noHere;
+			string noUser = Regex.Replace(noHere, @"(<@)\d+>", "`[REMOVED_PING]`", RegexOptions.IgnoreCase);
+			return noUser;
 		}
 
 		/// <summary>
