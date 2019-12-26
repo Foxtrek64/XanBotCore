@@ -19,10 +19,11 @@ namespace XanBotCore.CommandSystem.Commands {
 
 		public override string Syntax {
 			get {
-				return	Name + " <get> <key>\n" +
+				/*return	Name + " <get> <key>\n" +
 						Name + " <set> <key> <value>\n" +
 						Name + " <remove> <key>\n" +
-						Name + " <list>";
+						Name + " <list>";*/
+				return Name + " {get|set|remove|list} [<key> [<value>]]";
 			}
 		}
 

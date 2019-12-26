@@ -19,7 +19,7 @@ namespace XanBotCore.CommandSystem.Commands {
 
 		public override string Syntax {
 			get {
-				return Name + " [username/nickname/userGUID]";
+				return Name + " [username, nickname, or GUID]";
 			}
 		}
 
