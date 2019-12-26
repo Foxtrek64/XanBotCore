@@ -181,6 +181,25 @@ namespace XanBotCore.Logging {
 			}
 		}
 
+		private static bool HasWarnedForLackOfVT = false;
+
+		/// <summary>
+		/// A proxy to WriteProxy that does some extra sanity checks.
+		/// </summary>
+		private static void WriteProxy(string message) {
+			message = message.Replace('•', '■'); // Prevent abuse of beeping. If people run commands with bullets, the console will see it as 0x07 BEL and beep.
+			Console.Write(message);
+			if (Regex.IsMatch(message, @"(\x1b)(\[[^m]+)m") && !IsVTEnabled && !HasWarnedForLackOfVT) {
+				Console.Beep();
+				Console.WriteLine("\nWARNING: VT Sequence detected, but VT Sequences are not enabled! This warning will only show once.\n");
+				HasWarnedForLackOfVT = true;
+			}
+		}
+
+		private static void WriteProxyLine(string info) {
+			WriteProxy(info + "\n");
+		}
+
 		/// <summary>
 		/// Returns a formatted timestamp: "[HH:MM:SS] "
 		/// </summary>
@@ -331,10 +350,10 @@ namespace XanBotCore.Logging {
 						} else {
 							ForegroundColor = color;
 						}
-						Console.Write(coloredString.Substring(1));
+						WriteProxy(coloredString.Substring(1));
 					} else {
 						if (!skipConsoleStuff) continue;
-						Console.Write(coloredString);
+						WriteProxy(coloredString);
 					}
 				}
 			}
@@ -365,7 +384,7 @@ namespace XanBotCore.Logging {
 					// Backwards compatibility.
 					WriteMessageFromColors(coloredString, true);
 				} else {
-					Console.Write(coloredString);
+					WriteProxy(coloredString);
 				}
 
 				if (idx < colorMatches.Count)
@@ -489,7 +508,7 @@ namespace XanBotCore.Logging {
 		}
 
 		private static void WriteConsoleClearedNotif() {
-			Console.WriteLine("-- CONSOLE CLEARED TO RESET BUFFER --");
+			WriteProxyLine("-- CONSOLE CLEARED TO RESET BUFFER --");
 			LogMessage("-- CONSOLE CLEARED TO RESET BUFFER --");
 		}
 
