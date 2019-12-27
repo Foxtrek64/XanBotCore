@@ -37,7 +37,11 @@ namespace XanBotCore.ServerRepresentation {
 		public abstract ulong ServerId { get; }
 
 
+		/// <summary>
+		/// Represents whether or not this context is virtual internally. Reference <see cref="Virtual"/> instead and do not manipulate this value.
+		/// </summary>
 		internal virtual bool IsVirtualInternal => false;
+
 		/// <summary>
 		/// Will be true if this context is a <see cref="VirtualBotContext"/>, and false if it is not.
 		/// </summary>
@@ -97,15 +101,37 @@ namespace XanBotCore.ServerRepresentation {
 			}
 		}
 
-		/// <summary>
-		/// The commands that are specific to this context. If this is a virtual context, this array will be empty.
-		/// </summary>
-		public virtual Command[] ContextSpecificCommands { get; } = new Command[0];
+		protected virtual Command[] ContextSpecificCommands { get; } = new Command[0];
+		protected virtual PassiveHandler[] ContextSpecificHandlers { get; } = new PassiveHandler[0];
+		private Command[] CommandCache = null;
+		private PassiveHandler[] HandlerCache = null;
 
 		/// <summary>
-		/// The passive handlers that are specific to this context. If this is a virtual context, this array will be empty.
+		/// The commands that are specific to this context. If this is a virtual context, this array will be empty. The result of this array is cached.
 		/// </summary>
-		public virtual PassiveHandler[] ContextSpecificHandlers { get; } = new PassiveHandler[0];
+		public Command[] Commands {
+			get {
+				if (CommandCache == null) {
+					CommandCache = ContextSpecificCommands;
+					if (CommandCache == null) CommandCache = new Command[0];
+				}
+				return CommandCache;
+			}
+		}
+
+
+		/// <summary>
+		/// The passive handlers that are specific to this context. If this is a virtual context, this array will be empty. The result of this array is cached.
+		/// </summary>
+		public PassiveHandler[] Handlers {
+			get {
+				if (HandlerCache == null) {
+					HandlerCache = ContextSpecificHandlers;
+					if (HandlerCache == null) HandlerCache = new PassiveHandler[0];
+				}
+				return HandlerCache;
+			}
+		}
 
 		/// <summary>
 		/// The default permission level of users in this server.
@@ -269,9 +295,9 @@ namespace XanBotCore.ServerRepresentation {
 			foreach (Assembly asm in assemblies) {
 				XanBotLogger.WriteDebugLine("Searching assembly [" + asm.GetName().Name + "] for BotContext instances...");
 				foreach (Type type in asm.GetTypes().Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(BotContext)) && myType != typeof(VirtualBotContext) && !myType.IsSubclassOf(typeof(VirtualBotContext)))) {
+					XanBotLogger.WriteDebugLine("§8Found BotContext [" + type.Name + "]. Instantiating...");
 					BotContext ctx = (BotContext)Activator.CreateInstance(type);
 					ctx.AfterContextInitialization();
-					XanBotLogger.WriteDebugLine("§8Found and instantiated BotContext [" + type.Name + "].");
 				}
 			}
 		}

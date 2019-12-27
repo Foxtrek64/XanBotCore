@@ -35,20 +35,21 @@ namespace XanBotCore.Utility {
 			// Most of the code here is recycled from my personal bot, e.g. the forceAllowMassPing boolean.
 			string msgText = text;
 			if (!allowEveryoneAndHere) msgText = StripMassPings(msgText);
+			DiscordMessage response = null;
 
 			if (message != null) {
 				if (XanBotLogger.MessageHasColors(text)) {
 					msgText = XanBotLogger.StripColorFormattingCode(text);
 				}
 
-				return await message.RespondAsync(msgText);
+				response = await message.RespondAsync(msgText);
 			}
 			if (forceWriteToConsole || message == null) {
 				text = text.Replace("```", ""); // There may be more stuff to do, but this just makes it better for display in the console.
 				XanBotLogger.WriteLine(text, HasMassPings(msgText));
 			}
 
-			return null;
+			return response;
 		}
 
 		/// <summary>
@@ -89,7 +90,7 @@ namespace XanBotCore.Utility {
 				text = XanBotLogger.StripColorFormattingCode(text);
 			}
 
-			DiscordMessage response= await channel.SendMessageAsync(text);
+			DiscordMessage response = await channel.SendMessageAsync(text);
 
 			if (forceWriteToConsole) {
 				if (tryFormattingForConsole) {
