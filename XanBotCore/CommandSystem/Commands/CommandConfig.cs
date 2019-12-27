@@ -23,7 +23,7 @@ namespace XanBotCore.CommandSystem.Commands {
 						Name + " <set> <key> <value>\n" +
 						Name + " <remove> <key>\n" +
 						Name + " <list>";*/
-				return Name + " {get|set|remove|list} [<key> [<value>]]";
+				return Name + " :get|set|remove|list: [<key> [<value>]]";
 			}
 		}
 

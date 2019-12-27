@@ -15,7 +15,7 @@ namespace XanBotCore.CommandSystem.Commands {
 		public override string Name { get; } = "help";
 
 		public override string Description { get; } = "Lists every command or returns information on a command.\n\nSome commands may show something called \"Arguments\" as part of their documentation. This is the text like `<someArg>` or `[someArg]`.\n" +
-			"If you need help understanding what these mean, please refer to <https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/command-line-syntax-key>";
+			"If you need help understanding what these mean, please refer to <https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/command-line-syntax-key>\n**NOTE:** The table brackets (shift + []) have been replaced with colons (`:`) in this bot's formatting.";
 
 		public override string Syntax => Name + " [commandName]";
 
@@ -41,9 +41,9 @@ namespace XanBotCore.CommandSystem.Commands {
 					text += "\n";
 				}
 
-				if (context != null && context.ContextSpecificCommands.Length > 0) {
+				if (context != null && context.Commands.Length > 0) {
 					text += "\nCommands specific to this server:\n\n";
-					foreach (Command cmd in context.ContextSpecificCommands) {
+					foreach (Command cmd in context.Commands) {
 						int spaces = 34;
 						string usagePrefix = "+";
 						if (executingMember != null) {
@@ -80,8 +80,8 @@ namespace XanBotCore.CommandSystem.Commands {
 						}
 					}
 				}
-				if (context.ContextSpecificCommands.Length > 0) {
-					foreach (Command cmd in context.ContextSpecificCommands) {
+				if (context.Commands.Length > 0) {
+					foreach (Command cmd in context.Commands) {
 						if (cmd.Name.ToLower() == cmdLower) {
 							await ResponseUtil.RespondToAsync(originalMessage, GetFormattedCommandHelpInfo(cmd, cmd.Name));
 							return;

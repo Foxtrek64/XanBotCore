@@ -17,6 +17,11 @@ namespace XanBotCore.Logging {
 	public class XanBotLogger {
 
 		/// <summary>
+		/// If true, the logger will print debug messages even if <see cref="XanBotCoreSystem.IsDebugMode"/> is false. If <see cref="XanBotCoreSystem.IsDebugMode"/> is true, this will do nothing.
+		/// </summary>
+		public static bool ShowDebugMessagesAnyway { get; set; } = false;
+		
+		/// <summary>
 		/// The time when this class is initialized into memory. Used for the log file name. This value does not change.
 		/// </summary>
 		private static readonly string CLASS_INIT_TIMESTAMP = DateTime.UtcNow.ToFileTime().ToString();
@@ -403,7 +408,7 @@ namespace XanBotCore.Logging {
 		/// <param name="alertSound">If true, this message will cause the console to beep.</param>
 		/// <param name="isDebugModeOnly">If true, this will only log if the bot is in debug mode.</param>
 		public static void WriteLine(string message = "", bool alertSound = false, bool isDebugModeOnly = false) {
-			if (isDebugModeOnly && !XanBotCoreSystem.IsDebugMode) return;
+			if (isDebugModeOnly && (!XanBotCoreSystem.IsDebugMode && !ShowDebugMessagesAnyway)) return;
 			ClearConsoleIfNecessary();
 			if (alertSound) Console.Beep();
 			LogMessage(message);
@@ -431,7 +436,7 @@ namespace XanBotCore.Logging {
 		/// <param name="alertSound">If true, this message will cause the console to beep.</param>
 		/// <param name="isDebugModeOnly">If true, this will only log if the bot is in debug mode.</param>
 		public static void Write(string message = "", bool alertSound = false, bool isDebugModeOnly = false) {
-			if (isDebugModeOnly && !XanBotCoreSystem.IsDebugMode) return;
+			if (isDebugModeOnly && (!XanBotCoreSystem.IsDebugMode && !ShowDebugMessagesAnyway)) return;
 			ClearConsoleIfNecessary();
 			if (alertSound) Console.Beep();
 			string timestamp = GetFormattedTimestamp();

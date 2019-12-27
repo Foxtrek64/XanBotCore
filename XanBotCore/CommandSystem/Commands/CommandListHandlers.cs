@@ -25,14 +25,14 @@ namespace XanBotCore.CommandSystem.Commands {
 		public override async Task ExecuteCommandAsync(BotContext context, XanBotMember executingMember, DiscordMessage originalMessage, string[] args, string allArgs) {
 			if (args.Length == 0) {
 				string res = "```\n";
-				foreach (PassiveHandler handler in context.ContextSpecificHandlers) {
+				foreach (PassiveHandler handler in context.Handlers) {
 					// Secret handlers can't be displayed in normal command usage. Only display handlers if they aren't secret, or if they are secret, only allow it in the mod channel.
 					res += handler.Name + "\n";
 				}
 				res += "```";
 				await ResponseUtil.RespondToAsync(originalMessage, res);
 			} else if (args.Length == 1) {
-				foreach (PassiveHandler handler in context.ContextSpecificHandlers) {
+				foreach (PassiveHandler handler in context.Handlers) {
 					if (args[0].ToLower() == handler.Name.ToLower()) {
 						// Same thing as above: Prevent users from getting info on secret handlers unless the command is executed in the bot channel.
 						await ResponseUtil.RespondToAsync(originalMessage, "**" + handler.Name + ":** " + handler.Description);

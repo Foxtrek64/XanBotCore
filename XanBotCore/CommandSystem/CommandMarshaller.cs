@@ -43,7 +43,8 @@ namespace XanBotCore.CommandSystem {
 		private static ArchonCommand[] ArchonCommandsInternal = new ArchonCommand[] {
 			new ArchonCommandHelp(),
 			new ArchonCommandCurrentContext(),
-			new ArchonCommandForcePerms()
+			new ArchonCommandForcePerms(),
+			new ArchonCommandToggleDebugLogging(),
 		};
 
 		private static Command[] MergedCommands = CommandsInternal;
@@ -223,7 +224,7 @@ namespace XanBotCore.CommandSystem {
 			Command execCommand = null;
 			string cmdLower = command.ToLower();
 			// Search the context FIRST. That ensures that context commands can override stock commands.
-			foreach (Command cmd in commandContext.ContextSpecificCommands) {
+			foreach (Command cmd in commandContext.Commands) {
 				if (cmd.Name.ToLower() == cmdLower) {
 					execCommand = cmd;
 					XanBotLogger.WriteDebugLine($"Found command [{cmd.Name}] in context.");
@@ -299,7 +300,7 @@ namespace XanBotCore.CommandSystem {
 			XanBotMember sender = XanBotMember.GetMemberFromUser(targetContext, originalMessage.Author);
 
 			if (!targetContext.Virtual) {
-				foreach (PassiveHandler handler in targetContext.ContextSpecificHandlers) {
+				foreach (PassiveHandler handler in targetContext.Handlers) {
 					XanBotLogger.WriteDebugLine(handler.Name);
 					if (await handler.RunHandlerAsync(targetContext, sender, originalMessage)) {
 						XanBotLogger.WriteDebugLine("... returned true");
