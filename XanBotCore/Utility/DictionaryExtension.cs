@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using XanBotCore.Exceptions;
 
 namespace XanBotCore.Utility {
 
@@ -50,6 +51,27 @@ namespace XanBotCore.Utility {
 				} catch { }
 			}
 			return (TReturn)retn;
+		}
+
+		/// <summary>
+		/// Attempts to do a reverse-lookup on the specified <paramref name="value"/>, returning the key that corresponds to this value.
+		/// </summary>
+		/// <typeparam name="TKey">The key value type for this <see cref="IDictionary{TKey, TValue}"/></typeparam>
+		/// <typeparam name="TValue">The value type corresponding to the keys in this <see cref="IDictionary{TKey, TValue}"/></typeparam>
+		/// <param name="dictionary">The target dictionary.</param>
+		/// <param name="value">The value to find the key of.</param>
+		/// <exception cref="ValueNotFoundException"/>
+		/// <returns></returns>
+		public static TKey KeyOf<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TValue value) {
+			if (!dictionary.Values.Contains(value)) throw new ValueNotFoundException("The specified value does not exist in this dictionary.");
+			foreach (TKey key in dictionary.Keys) {
+				TValue v = dictionary[key];
+				if (v.Equals(value)) {
+					return key;
+				}
+			}
+
+			throw new ValueNotFoundException("The specified value does not exist in this dictionary.");
 		}
 	}
 }

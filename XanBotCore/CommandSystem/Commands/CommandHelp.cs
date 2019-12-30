@@ -30,7 +30,7 @@ namespace XanBotCore.CommandSystem.Commands {
 					int spaces = 34;
 					string usagePrefix = "+ ";
 					if (executingMember != null) {
-						usagePrefix = cmd.CanUseCommand(executingMember) ? "+ " : "- ";
+						usagePrefix = cmd.CanUseCommand(executingMember).CanUse ? "+ " : "- ";
 					}
 					text += usagePrefix + cmd.Name;
 					spaces -= (cmd.Name.Length + 2);
@@ -47,7 +47,7 @@ namespace XanBotCore.CommandSystem.Commands {
 						int spaces = 34;
 						string usagePrefix = "+";
 						if (executingMember != null) {
-							usagePrefix = cmd.CanUseCommand(executingMember) ? "+ " : "- ";
+							usagePrefix = cmd.CanUseCommand(executingMember).CanUse ? "+ " : "- ";
 						}
 						text += usagePrefix + cmd.Name;
 						spaces -= (cmd.Name.Length + 2);

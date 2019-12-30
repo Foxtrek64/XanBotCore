@@ -198,6 +198,7 @@ namespace XanBotCore.UserObjects {
 		/// </summary>
 		/// <param name="role">The <see cref="DiscordRole"/> to give</param>
 		/// <param name="reason">The reason to provide in the audit log</param>
+		/// <exception cref="ArgumentNullException"/>
 		public void GrantRole(DiscordRole role, string reason = null) {
 			if (role == null) throw new ArgumentNullException("role");
 			Member.GrantRoleAsync(role, reason).GetAwaiter().GetResult();
@@ -208,6 +209,7 @@ namespace XanBotCore.UserObjects {
 		/// </summary>
 		/// <param name="role">The <see cref="DiscordRole"/> to give</param>
 		/// <param name="reason">The reason to provide in the audit log</param>
+		/// <exception cref="ArgumentNullException"/>
 		public async Task GrantRoleAsync(DiscordRole role, string reason = null) {
 			if (role == null) throw new ArgumentNullException("role");
 			await Member.GrantRoleAsync(role, reason);
@@ -218,6 +220,7 @@ namespace XanBotCore.UserObjects {
 		/// </summary>
 		/// <param name="role">The <see cref="DiscordRole"/> to take</param>
 		/// <param name="reason">The reason to provide in the audit log</param>
+		/// <exception cref="ArgumentNullException"/>
 		public void RemoveRole(DiscordRole role, string reason = null) {
 			if (role == null) throw new ArgumentNullException("role");
 			Member.RevokeRoleAsync(role, reason).GetAwaiter().GetResult();
@@ -228,6 +231,7 @@ namespace XanBotCore.UserObjects {
 		/// </summary>
 		/// <param name="role">The <see cref="DiscordRole"/> to take</param>
 		/// <param name="reason">The reason to provide in the audit log</param>
+		/// <exception cref="ArgumentNullException"/>
 		public async Task RemoveRoleAsync(DiscordRole role, string reason = null) {
 			if (role == null) throw new ArgumentNullException("role");
 			await Member.RevokeRoleAsync(role, reason);
@@ -239,6 +243,7 @@ namespace XanBotCore.UserObjects {
 		/// </summary>
 		/// <param name="role">The <see cref="DiscordRole"/> to give or take</param>
 		/// <param name="reason">The reason to provide in the audit log</param>
+		/// <exception cref="ArgumentNullException"/>
 		public bool ToggleRole(DiscordRole role, string reason = null) {
 			if (role == null) throw new ArgumentNullException("role");
 			if (HasRole(role)) {
@@ -256,6 +261,7 @@ namespace XanBotCore.UserObjects {
 		/// </summary>
 		/// <param name="role">The <see cref="DiscordRole"/> to give or take</param>
 		/// <param name="reason">The reason to provide in the audit log</param>
+		/// <exception cref="ArgumentNullException"/>
 		public async Task<bool> ToggleRoleAsync(DiscordRole role, string reason = null) {
 			if (role == null) throw new ArgumentNullException("role");
 			if (HasRole(role)) {
@@ -271,7 +277,7 @@ namespace XanBotCore.UserObjects {
 		/// Returns whether or not this member has the specified <see cref="DiscordRole"/>
 		/// </summary>
 		/// <param name="role">The <see cref="DiscordRole"/> to look for</param>
-		/// <returns></returns>
+		/// <exception cref="ArgumentNullException"/>
 		public bool HasRole(DiscordRole role) {
 			if (role == null) throw new ArgumentNullException("role");
 			return Member.Roles.Contains(role);

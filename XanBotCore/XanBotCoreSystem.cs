@@ -38,6 +38,7 @@ namespace XanBotCore {
 		/// The <see cref="DiscordClient"/> of the bot employing the use of XanBotCore.<para/>
 		/// Throws a <see cref="InvalidOperationException"/> if the value for this is referenced before it is set -- It should be initialized immediately with the bot.
 		/// </summary>
+		/// <exception cref="InvalidOperationException"/>
 		public static DiscordClient Client {
 			get {
 				return ClientInternal ?? throw new InvalidOperationException("Failed to get Client -- XanBotCoreSystem.Client is null. Did you remember to set this value when you initialized your Discord bot?");
@@ -51,6 +52,7 @@ namespace XanBotCore {
 		/// The <see cref="VoiceNextExtension"/> of the bot. This allows the bot to connect to voice channels to both send and receive audio.<para/>
 		/// Throws a <see cref="InvalidOperationException"/> if the value for this is referenced before it is set -- It should be initialized immediately with the bot.
 		/// </summary>
+		/// <exception cref="InvalidOperationException"/>
 		public static VoiceNextExtension VoiceClient {
 			get {
 				return VoiceClientInternal ?? throw new InvalidOperationException("Failed to get VoiceClient -- XanBotCoreSystem.VoiceClient is null. Did you remember to set this value when you initialized your Discord bot?");

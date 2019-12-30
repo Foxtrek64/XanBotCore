@@ -16,12 +16,12 @@ namespace XanBotCore.DataPersistence {
 	/// A utility class that manages configuration files.
 	/// </summary>
 	public class XConfiguration {
-		//private static readonly string CFG_FILE_NAME = "configuration.cfg";
+		//protected static readonly string CFG_FILE_NAME = "configuration.cfg";
 		public static readonly XConfiguration GLOBAL_CONFIGURATION = new XConfiguration(XFileHandler.GLOBAL_HANDLER);
-		private readonly Dictionary<string, string> ConfigValues = new Dictionary<string, string>();
-		private static readonly Dictionary<XFileHandler, Dictionary<string, XConfiguration>> ConfigurationTies = new Dictionary<XFileHandler, Dictionary<string, XConfiguration>>();
+		protected readonly Dictionary<string, string> ConfigValues = new Dictionary<string, string>();
+		protected static readonly Dictionary<XFileHandler, Dictionary<string, XConfiguration>> ConfigurationTies = new Dictionary<XFileHandler, Dictionary<string, XConfiguration>>();
 
-		private const string DEFAULT_CFG_FILE_NAME = "configuration.cfg";
+		protected const string DEFAULT_CFG_FILE_NAME = "configuration.cfg";
 
 		/// <summary>
 		/// The name of this configuration file.
@@ -29,16 +29,37 @@ namespace XanBotCore.DataPersistence {
 		public string ConfigFileName { get; } = DEFAULT_CFG_FILE_NAME;
 
 		/// <summary>
-		/// The underlying XFileHandler for this configuration object.
+		/// The underlying <see cref="XFileHandler>"/> for this configuration object.
 		/// </summary>
 		public XFileHandler BaseHandler { get; } = null;
 
 		/// <summary>
+		/// A reference to the <see cref="BotContext"/> this exists in. Points to <see cref="XFileHandler.Context"/>
+		/// </summary>
+		public BotContext Context => BaseHandler.Context;
+
+		/// <summary>
+		/// Gets all keys in this config.
+		/// </summary>
+		public IEnumerable<string> Keys => ConfigValues.Keys;
+
+		/// <summary>
+		/// Gets all values in this config.
+		/// </summary>
+		public IEnumerable<string> Values => ConfigValues.Values;
+
+		/// <summary>
+		/// A list of <see cref="ConfigMirror"/>s attached to this <see cref="XConfiguration"/>.
+		/// </summary>
+		public IReadOnlyList<ConfigMirror> Mirrors => MirrorsInternal.AsReadOnly();
+		private readonly List<ConfigMirror> MirrorsInternal = new List<ConfigMirror>();
+
+		/// <summary>
 		/// True if the system has unsaved changes.
 		/// </summary>
-		private bool HasUnsavedChanges { get; set; } = false;
+		protected bool HasUnsavedChanges { get; set; } = false;
 
-		private XConfiguration(XFileHandler handler, string cfgFileName = DEFAULT_CFG_FILE_NAME) {
+		protected XConfiguration(XFileHandler handler, string cfgFileName = DEFAULT_CFG_FILE_NAME) {
 			BaseHandler = handler;
 			ConfigFileName = cfgFileName;
 			LoadConfigurationFile();
@@ -51,7 +72,7 @@ namespace XanBotCore.DataPersistence {
 		/// <typeparam name="T"></typeparam>
 		/// <param name="input"></param>
 		/// <returns></returns>
-		private static bool TryParse<T>(string input, out T value) {
+		protected static bool TryParse<T>(string input, out T value) {
 			try {
 				value = (T)TypeDescriptor.GetConverter(typeof(T)).ConvertFromString(input);
 				return true;
@@ -64,7 +85,7 @@ namespace XanBotCore.DataPersistence {
 		/// <summary>
 		/// Mandates the type of a config value by returning the value in the key as the specified type, or by writing the default value and returning the default value if the key is malformed or doesn't exist.<para/>
 		/// When tying a config value into a property, this method is suggested.<para/>
-		/// If you want to display an error message, consider using <see cref="GetAndMandateType{T}(string, T)"/>
+		/// If you want to display an error message, consider using <see cref="GetAndMandateType{T}(string, T, out T)"/>
 		/// </summary>
 		/// <typeparam name="T">The type of data that is desired.</typeparam>
 		/// <param name="configKey">The config key to search.</param>
@@ -91,6 +112,7 @@ namespace XanBotCore.DataPersistence {
 		/// <typeparam name="T">The type of data that is desired.</typeparam>
 		/// <param name="configKey">The config key to search.</param>
 		/// <param name="defaultValue">The default value if the config key doesn't exist or if the data is malformed.</param>
+		/// <exception cref="MalformedConfigDataException"/>
 		public void GetAndMandateType<T>(string configKey, T defaultValue, out T value) {
 			string v = GetConfigurationValue(configKey, defaultValue.ToString(), true, true);
 			if (!TryParse(v, out T retn)) {
@@ -107,15 +129,32 @@ namespace XanBotCore.DataPersistence {
 		}
 
 		public delegate void ConfigValueChanged(BotContext context, string key, string oldValue, string newValue, bool valueJustCreated);
-		//public static event ConfigValueChanged OnAnyConfigValueChanged;
 		public event ConfigValueChanged OnConfigValueChanged;
+
+		/// <summary>
+		/// Adds a <see cref="ConfigMirror"/> to this <see cref="XConfiguration"/> and mirrors it.
+		/// </summary>
+		/// <param name="handler"></param>
+		public void AddMirror(XFileHandler handler) {
+			ConfigMirror mirror = new ConfigMirror(this, handler);
+			mirror.MirrorNow();
+			MirrorsInternal.Add(mirror);
+		}
+
+		/// <summary>
+		/// Adds a <see cref="ConfigMirror"/> to this <see cref="XConfiguration"/>.
+		/// </summary>
+		/// <param name="handler"></param>
+		public void AddMirror(DirectoryInfo baseDirectory) {
+			AddMirror(XFileHandler.CreateNewHandlerInCustomDirectory(baseDirectory));
+		}
 
 		/// <summary>
 		/// Set a configuration value in the config file.
 		/// </summary>
 		/// <param name="key">The key of the config option</param>
 		/// <param name="value">The value of the config option</param>
-		/// <param name="dontSaveOnWrite">If this is true, the configuration will not automatically save after setting this value. The user must call it manually. This is used to prevent repeated opening and closing of the file.</param>
+		/// <param name="dontSaveOnWrite">If this is true, the configuration will skip saving after setting this value. The user must call <see cref="SaveConfigurationFile"/> manually if this is done. Generally speaking, this should be used if you are writing massive amounts of config data and want to avoid constantly opening and closing the file handle.</param>
 		public void SetConfigurationValue(string key, string value, bool dontSaveOnWrite = false) {
 			string oldValue = GetConfigurationValue(key);
 			ConfigValues[key] = value;
@@ -141,7 +180,7 @@ namespace XanBotCore.DataPersistence {
 		/// <param name="oldValue">The value before being changed</param>
 		/// <param name="newValue">The value after being changed</param>
 		/// <param name="wasJustCreated">Whether or not the value is now registered in config and wasn't regsitered before this.</param>
-		private void SetConfigurationValue(string key, string oldValue, string newValue, bool wasJustCreated) {
+		protected void SetConfigurationValue(string key, string oldValue, string newValue, bool wasJustCreated) {
 			ConfigValues[key] = newValue;
 			SaveConfigurationFile();
 
@@ -160,6 +199,7 @@ namespace XanBotCore.DataPersistence {
 		/// <param name="key">The key of the config value</param>
 		/// <param name="defaultValue">The default value to get if it doesn't exist</param>
 		/// <param name="writeIfDoesntExist">Write the default value if it doesn't exist.</param>
+		/// <param name="reloadConfigFile">If true, the configuration data will be scrapped (dropping any pending changes that the user has purposely told not to save), and the config file will be re-read. This allows hand-made edits to the config file to be reflected.</param>
 		/// <returns></returns>
 		public string GetConfigurationValue(string key, string defaultValue = null, bool writeIfDoesntExist = false, bool reloadConfigFile = false) {
 			if (reloadConfigFile) {
@@ -176,7 +216,7 @@ namespace XanBotCore.DataPersistence {
 		}
 
 		/// <summary>
-		/// Removes a config value from the config array. Returns whether or not the key existed and was removed.
+		/// Removes a config value from the config array. Returns true if the key existed and was removed, and false if the key did not exist prior to calling this.
 		/// </summary>
 		/// <param name="key">The key to remove</param>
 		public bool RemoveConfigurationValue(string key) {
@@ -189,37 +229,16 @@ namespace XanBotCore.DataPersistence {
 		}
 
 		/// <summary>
-		/// Generates a list of all config values.
-		/// </summary>
-		/// <returns></returns>
-		public string ListConfigurationValues() {
-			string list = "```\n";
-			foreach (string key in ConfigValues.Keys) {
-				list += "§aConfigArray[§3" + key + "§a]=§b" + ConfigValues[key] + "§a\n";
-			}
-			list += "```";
-			return list;
-		}
-
-		/// <summary>
-		/// Generates a list of all configuration keys.
-		/// </summary>
-		/// <returns></returns>
-		public string[] GetConfigurationKeys() {
-			return ConfigValues.Keys.ToArray();
-		}
-
-		/// <summary>
-		/// Returns whether or not a configuration value exists.
+		/// Returns whether or not the specified key has been defined in this <see cref="XConfiguration"/>
 		/// </summary>
 		/// <param name="key">The key to search for</param>
 		/// <returns></returns>
-		public bool ConfigurationValueExists(string key) {
+		public bool ContainsKey(string key) {
 			return ConfigValues.ContainsKey(key);
 		}
 
 		/// <summary>
-		/// Saves the config file. This should only be used if <see cref="SetConfigurationValue(string, string, bool)"/> was called with its dontSaveOnWrite parameter set to true at some point before you feel the need to call this, otherwise, it will have been automatically called by the set operation.
+		/// Saves the config file. This should only be used if <see cref="SetConfigurationValue(string, string, bool)"/> was called with its dontSaveOnWrite parameter set to true. This is automatically called if the parameter is false.
 		/// </summary>
 		public void SaveConfigurationFile() {
 			StreamWriter dataStream = BaseHandler.CreateText(ConfigFileName);
@@ -233,9 +252,9 @@ namespace XanBotCore.DataPersistence {
 		}
 
 		/// <summary>
-		/// Loads the config file and populates the array.
+		/// Loads the config file.
 		/// </summary>
-		private void LoadConfigurationFile() {
+		protected void LoadConfigurationFile() {
 			if (HasUnsavedChanges) {
 				XanBotLogger.WriteLine("§4A request to reload the config file was made, but there were unsaved manual changes in the config file made via code. The config file will not be reloaded, which may have adverse effects!", true);
 				return;
@@ -250,7 +269,7 @@ namespace XanBotCore.DataPersistence {
 		}
 
 		/// <summary>
-		/// Reloads the stored config.
+		/// Reloads this <see cref="XConfiguration"/> by scrapping all pending changes then re-reading the file this <see cref="XConfiguration"/> points to.
 		/// </summary>
 		public void ReloadFromConfigFile() {
 			if (HasUnsavedChanges) {
@@ -281,7 +300,7 @@ namespace XanBotCore.DataPersistence {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="XConfiguration"/> (or gets an existing one) from the specified <see cref="BotContext"/> by first creating or getting the <see cref="XFileHandler"/> for said context. This caches the object.
+		/// Creates a new <see cref="XConfiguration"/> (or gets an existing one) from the specified <see cref="BotContext"/> by automatically creating or getting the <see cref="XFileHandler"/> for said context. This caches the object.
 		/// </summary>
 		/// <param name="context">The <see cref="BotContext"/> that this <see cref="XConfiguration"/> should target.</param>
 		/// <returns></returns>
@@ -290,7 +309,8 @@ namespace XanBotCore.DataPersistence {
 		}
 
 		/// <summary>
-		/// Returns a global configuration with the specified name. If the name is null or equal to <see cref="DEFAULT_CFG_FILE_NAME"/>, it will return <see cref="GLOBAL_CONFIGURATION"/>.
+		/// Returns a global configuration with the specified name.<para/>
+		/// If the name is null or equal to <see cref="DEFAULT_CFG_FILE_NAME"/>, it will return <see cref="GLOBAL_CONFIGURATION"/> (in which case you should probably just reference it directly)
 		/// </summary>
 		/// <param name="cfgFileName"></param>
 		/// <returns></returns>

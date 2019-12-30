@@ -28,6 +28,7 @@ namespace XanBotCore.Permissions {
 		/// Since this is your bot and you should be able to dictate security, this is under a boolean so that you may set it to false if needed.<para/>
 		/// Throws an <see cref="InvalidOperationException"/> if this is set after the bot has been initialized, as the member object may have already been created with the permission level.
 		/// </summary>
+		/// <exception cref="InvalidOperationException"/>
 		public static bool AllowXanMaxPermissionLevel {
 			get {
 				return AllowXanInternal;
@@ -91,6 +92,7 @@ namespace XanBotCore.Permissions {
 		/// The default permission level of all member objects. Any members that have their permission level set to this value will not be stored in data persistence by this code.<para/>
 		/// Throws an <see cref="InvalidOperationException"/> if this is set after the bot has been initialized, as references to commands may have the old value stored in them.
 		/// </summary>
+		/// <exception cref="InvalidOperationException"/>
 		public static byte DefaultPermissionLevel {
 			get {
 				return DefaultPermissionLevelInternal;
@@ -107,6 +109,7 @@ namespace XanBotCore.Permissions {
 		/// </summary>
 		/// <param name="userId">The ID of the user to get permissions of.</param>
 		/// <param name="context">The bot context to grab the information from.</param>
+		/// <exception cref="MalformedConfigDataException"/>
 		/// <returns></returns>
 		public static byte GetPermissionLevelOfUser(ulong userId, BotContext context) {
 			XConfiguration cfg = XConfiguration.GetConfigurationUtility(context, "userPerms.permissions");

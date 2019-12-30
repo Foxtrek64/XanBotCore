@@ -253,7 +253,8 @@ namespace XanBotCore.CommandSystem {
 
 
 			if (execCommand != null) {
-				if (execCommand.CanUseCommand(member)) {
+				UsagePermissionPacket usagePerms = execCommand.CanUseCommand(member);
+				if (usagePerms.CanUse) {
 					if (execCommand.CanUseCommandInThisChannel(member, originalMessage.Channel, out DiscordChannel optimalTargetChannel)) {
 						try {
 							string allArgsText = "";
@@ -281,9 +282,9 @@ namespace XanBotCore.CommandSystem {
 						await ResponseUtil.RespondToAsync(originalMessage, message);
 					}
 				} else {
-					string message = string.Format("You are not authorized to use `{0}`. It is only available to `{1}` and above (You are at `{2}`)", execCommand.Name, execCommand.RequiredPermissionLevel, member.PermissionLevel);
-					await ResponseUtil.RespondToAsync(originalMessage, message);
-					XanBotLogger.WriteLine(string.Format("§aUser \"§6{0}§a\" attempted to issue command \"§6{1}§a\" but it failed because they don't have a high enough permission level.", member.FullName, execCommand.Name));
+					//string message = string.Format("You are not authorized to use `{0}`. It is only available to permission level `{1}` and above (You are at `{2}`)", execCommand.Name, execCommand.RequiredPermissionLevel, member.PermissionLevel);
+					await ResponseUtil.RespondToAsync(originalMessage, usagePerms.ErrorMessage);
+					XanBotLogger.WriteLine(string.Format("§aUser \"§6{0}§a\" attempted to issue command \"§6{1}§a\" but it failed because they don't have a high enough permission level or because the command's CanUseCommand method returned false.", member.FullName, execCommand.Name));
 				}
 			} else {
 				await ResponseUtil.RespondToAsync(originalMessage, "The command `" + command + "` does not exist.");

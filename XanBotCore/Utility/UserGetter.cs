@@ -36,6 +36,7 @@ namespace XanBotCore.Utility {
 		/// </summary>
 		/// <param name="server">The Discord server to target.</param>
 		/// <param name="data">The query to get a XanBotMember from. This can be a ulong as a string, a user ping (&lt;@ulong&gt;), a server nickname, a username (or optionally username#discriminator)</param>
+		/// <exception cref="NonSingularResultException"/>
 		/// <returns></returns>
 		public static async Task<XanBotMember> GetMemberFromDataAsync(DiscordGuild server, string data) {
 			// Wait! If it's a ping, it will start with <@ and end with >

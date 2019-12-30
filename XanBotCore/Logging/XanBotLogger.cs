@@ -17,6 +17,12 @@ namespace XanBotCore.Logging {
 	public class XanBotLogger {
 
 		/// <summary>
+		/// The symbol recognized in messages for color codes. This is identical to Minecraft's color code system.<para/>
+		/// See <a href="https://minecraft.gamepedia.com/Formatting_codes#Color_codes">https://minecraft.gamepedia.com/Formatting_codes#Color_codes</a> for more information.
+		/// </summary>
+		public const char COLOR_CODE_SYM = '§';
+
+		/// <summary>
 		/// If true, the logger will print debug messages even if <see cref="XanBotCoreSystem.IsDebugMode"/> is false. If <see cref="XanBotCoreSystem.IsDebugMode"/> is true, this will do nothing.
 		/// </summary>
 		public static bool ShowDebugMessagesAnyway { get; set; } = false;
@@ -30,6 +36,7 @@ namespace XanBotCore.Logging {
 		/// The folder that the log file is stored in as a string. Default value is .\ (current EXE directory).<para/>
 		/// This can only be set BEFORE calling <see cref="XanBotCoreSystem.InitializeBotAsync(string, bool, bool, bool)"/>. Attempting to set it after calling this will throw an <see cref="InvalidOperationException"/>
 		/// </summary>
+		/// <exception cref="InvalidOperationException"/>
 		public static string LogContainerFolder {
 			get {
 				return LogFilePathInternal;
@@ -58,10 +65,20 @@ namespace XanBotCore.Logging {
 		private static string Log = "";
 
 		/// <summary>
-		/// The symbol recognized in messages for color codes. This is identical to Minecraft's color code system.<para/>
-		/// See <a href="https://minecraft.gamepedia.com/Formatting_codes#Color_codes">https://minecraft.gamepedia.com/Formatting_codes#Color_codes</a> for more information.
+		/// The default color used by the console for messages printed with no color. Default value is <see cref="ConsoleColor.Green"/><para/>
+		/// This can be set to a <see cref="ConsoleColorVT"/> or a <see cref="ConsoleColor"/>. Attempting to set it to a <see cref="ConsoleColorVT"/> when <see cref="IsVTEnabled"/> is false will throw a <see cref="NotSupportedException"/>.
 		/// </summary>
-		public const char COLOR_CODE_SYM = '§';
+		/// <exception cref="NotSupportedException"/>
+		public static ConsoleColorVT DefaultColor {
+			get => DefaultColorInternal;
+			set {
+				if (value.GetType() != typeof(ConsoleColor)) {
+					if (!IsVTEnabled) throw new NotSupportedException("Cannot set DefaultColor to ConsoleColorVT -- VT is not enabled. Did you remember to call EnableVTSupport()?");
+				}
+				DefaultColorInternal = value;
+			}
+		}
+		private static ConsoleColorVT DefaultColorInternal = ConsoleColor.Green;
 
 		/// <summary>
 		/// A map of byte code values to ConsoleColors
@@ -108,6 +125,7 @@ namespace XanBotCore.Logging {
 		/// Setting this to null if VT is enabled will default to white.<para/>
 		/// Attempting to set this value if <see cref="IsVTEnabled"/> is false will throw an <see cref="InvalidOperationException"/>
 		/// </summary>
+		/// <exception cref="InvalidOperationException"/>
 		public static ConsoleColorVT ForegroundColor {
 			get {
 				return FGColorInternal;
@@ -128,6 +146,7 @@ namespace XanBotCore.Logging {
 		/// Setting this to null if VT is enabled will default to black.<para/>
 		/// Attempting to set this value if <see cref="IsVTEnabled"/> is false will throw an <see cref="InvalidOperationException"/>
 		/// </summary>
+		/// <exception cref="InvalidOperationException"/>
 		public static ConsoleColorVT BackgroundColor {
 			get {
 				return BGColorInternal;
@@ -166,13 +185,14 @@ namespace XanBotCore.Logging {
 		/// VT sequences allow low level control of the console's colors, including the allowance of full 16-million color RGB text and backgrounds.<para/>
 		/// See <a href="https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences">https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences</a> for more information.
 		/// </summary>
+		/// <exception cref="NotSupportedException"/>
+		/// <exception cref="NullReferenceException"/>
 		public static void EnableVTSupport() {
 			if (IsVTEnabled) return;
 
 			IntPtr hOut = GetStdHandle(-11);
 			if (hOut != INVALID_HANDLE_VALUE) {
-				uint mode;
-				if (GetConsoleMode(hOut, out mode)) {
+				if (GetConsoleMode(hOut, out uint mode)) {
 					mode |= 0x4;
 					SetConsoleMode(hOut, mode);
 					IsVTEnabled = true;
@@ -189,7 +209,7 @@ namespace XanBotCore.Logging {
 		private static bool HasWarnedForLackOfVT = false;
 
 		/// <summary>
-		/// A proxy to WriteProxy that does some extra sanity checks.
+		/// A proxy to Write that does some extra sanity checks.
 		/// </summary>
 		private static void WriteProxy(string message) {
 			message = message.Replace('•', '■'); // Prevent abuse of beeping. If people run commands with bullets, the console will see it as 0x07 BEL and beep.
@@ -201,6 +221,10 @@ namespace XanBotCore.Logging {
 			}
 		}
 
+		/// <summary>
+		/// A proxy to WriteLine that does some extra sanity checks.
+		/// </summary>
+		/// <param name="info"></param>
 		private static void WriteProxyLine(string info) {
 			WriteProxy(info + "\n");
 		}
@@ -440,16 +464,11 @@ namespace XanBotCore.Logging {
 			ClearConsoleIfNecessary();
 			if (alertSound) Console.Beep();
 			string timestamp = GetFormattedTimestamp();
-			//string logMessage = message;
-			//if (MessageHasColors(logMessage)) logMessage = StripColorFormattingCode(logMessage);
-			//Log += timestamp + logMessage;
 			LogMessage(message);
 			if (IsVTEnabled) {
-				//WriteLineVT(timestamp, logMessage);
-				ConsoleColorVT old = ForegroundColor;
-				WriteMessageFromColorsVT("^#008000;" + timestamp + old + message);
+				WriteMessageFromColorsVT("^#008000;" + timestamp + DefaultColorInternal.ToString(IsVTEnabled) + message);
 			} else {
-				WriteMessageFromColors(COLOR_CODE_SYM + "2" + timestamp + COLOR_CODE_SYM + "a" + message);
+				WriteMessageFromColors(COLOR_CODE_SYM + "2" + timestamp + DefaultColorInternal.ToString(IsVTEnabled) + message);
 			}
 			WriteLogFile();
 		}
@@ -499,12 +518,12 @@ namespace XanBotCore.Logging {
 				if (IsVTEnabled) {
 					ConsoleColorVT old = ForegroundColor;
 					ForegroundColor = ConsoleColor.DarkCyan;
-					WriteConsoleClearedNotif();
+					WriteConsoleClearedNotification();
 					ForegroundColor = old;
 				} else {
 					ConsoleColor old = Console.ForegroundColor;
 					Console.ForegroundColor = ConsoleColor.DarkCyan;
-					WriteConsoleClearedNotif();
+					WriteConsoleClearedNotification();
 					Console.ForegroundColor = old;
 				}
 				
@@ -512,7 +531,10 @@ namespace XanBotCore.Logging {
 			}
 		}
 
-		private static void WriteConsoleClearedNotif() {
+		/// <summary>
+		/// Writes a message notifying the operator that the console has been cleared to give the buffer more space.
+		/// </summary>
+		private static void WriteConsoleClearedNotification() {
 			WriteProxyLine("-- CONSOLE CLEARED TO RESET BUFFER --");
 			LogMessage("-- CONSOLE CLEARED TO RESET BUFFER --");
 		}

@@ -41,7 +41,7 @@ namespace XanBotCore.CommandSystem.Commands {
 				// >> config list
 				if (subCommand == "list") {
 					string message = "**Configuration Values:**\n```lua\n";
-					string[] keys = targetConfig.GetConfigurationKeys();
+					string[] keys = targetConfig.Keys.ToArray();
 					foreach (string key in keys) {
 						message += "[\"" + key + "\"]=" + targetConfig.GetConfigurationValue(key) + "\n";
 					}

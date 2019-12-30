@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XanBotCore.CommandSystem.Commands;
 using XanBotCore.Permissions;
 using XanBotCore.ServerRepresentation;
 using XanBotCore.UserObjects;
@@ -40,14 +41,15 @@ namespace XanBotCore.CommandSystem {
 		public abstract byte RequiredPermissionLevel { get; }
 
 		/// <summary>
-		/// Returns true if the specified member can use the command. The default behavior checks if <paramref name="member"/>.PermissionLevel is greater than or equal to this command's <see cref="RequiredPermissionLevel"/>.
+		/// Returns whether or not the specified member can use the command. The default behavior checks if <paramref name="member"/>.PermissionLevel is greater than or equal to this command's <see cref="RequiredPermissionLevel"/>.
 		/// </summary>
 		/// <param name="member">The member using this command.</param>
 		/// <returns>true if the specified member can use the command, false if they can not.</returns>
-		public virtual bool CanUseCommand(XanBotMember member) {
-			// Command would be ICommand if this wasn't going to be common across literally every command.
-			// There *could* be edge cases in which this method is different, so that's why I have it here anyway.
-			return member.PermissionLevel >= RequiredPermissionLevel;
+		public virtual UsagePermissionPacket CanUseCommand(XanBotMember member) {
+			return new UsagePermissionPacket(
+				member.PermissionLevel >= RequiredPermissionLevel, 
+				$"You are not authorized to use {Name}. It is only available to Permission Level {RequiredPermissionLevel} (your Permission Level is {member.PermissionLevel})."
+			);
 		}
 
 		/// <summary>

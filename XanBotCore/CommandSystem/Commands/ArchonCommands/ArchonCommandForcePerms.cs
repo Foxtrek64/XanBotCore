@@ -54,7 +54,11 @@ namespace XanBotCore.CommandSystem.Commands.ArchonCommands {
 			if (byte.TryParse(args[1], out byte newLvl)) {
 				person.PermissionLevel = newLvl;
 			} else {
-				throw new ArchonCommandException(this, "Invalid permission level");
+				if (decimal.TryParse(args[1], out decimal value)) {
+					throw new ArchonCommandException(this, "Invalid permission level. The specified value is out of the acceptable range of values for a byte (0 to 255).");
+				} else {
+					throw new ArchonCommandException(this, "Invalid permission level. Could not cast the input data into a byte value.");
+				}
 			}
 		}
 	}

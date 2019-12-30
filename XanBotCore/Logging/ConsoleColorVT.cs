@@ -5,13 +5,16 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using XanBotCore.Utility;
 
 namespace XanBotCore.Logging {
 	public class ConsoleColorVT {
 
 		public const string COLOR_CODE_REGEX = @"\^#([0-9]|[a-f]|[A-F]){6};";
 
-		public static readonly IReadOnlyDictionary<ConsoleColor, ConsoleColorVT> ConsoleColorMap = new Dictionary<ConsoleColor, ConsoleColorVT> {
+		public static IReadOnlyDictionary<ConsoleColor, ConsoleColorVT> ConsoleColorMap => Colors;
+
+		private static readonly Dictionary<ConsoleColor, ConsoleColorVT> Colors = new Dictionary<ConsoleColor, ConsoleColorVT> {
 			[ConsoleColor.Black] = new ConsoleColorVT(0, 0, 0),
 			[ConsoleColor.DarkBlue] = new ConsoleColorVT(0, 0, 128),
 			[ConsoleColor.DarkGreen] = new ConsoleColorVT(0, 128, 0),
@@ -31,9 +34,9 @@ namespace XanBotCore.Logging {
 		};
 
 
-		public byte R { get; }
-		public byte G { get; }
-		public byte B { get; }
+		public byte R { get; } = 0;
+		public byte G { get; } = 0;
+		public byte B { get; } = 0;
 
 		/// <summary>
 		/// Construct a new <see cref="ConsoleColorVT"/> from the specified color value.
@@ -60,6 +63,7 @@ namespace XanBotCore.Logging {
 		/// </summary>
 		/// <param name="formatted">The formatted text.</param>
 		/// <returns>A <see cref="ConsoleColorVT"/> using the specified hex code.</returns>
+		/// <exception cref="ArgumentException"/>
 		public static ConsoleColorVT FromFormattedString(string formatted) {
 			if (formatted.Length != 9 || !Regex.IsMatch(formatted, COLOR_CODE_REGEX)) {
 				// Length 9 enforces that it's *just* the code.
@@ -91,11 +95,30 @@ namespace XanBotCore.Logging {
 		}
 
 		/// <summary>
+		/// Attempts to return this <see cref="ConsoleColorVT"/> as a <see cref="ConsoleColor"/> based on its color. If this <see cref="ConsoleColorVT"/> does not match up with a <see cref="ConsoleColor"/>, this will return null.
+		/// </summary>
+		/// <returns></returns>
+		public ConsoleColor? AsConsoleColor() {
+			if (Colors.Values.Contains(this)) return Colors.KeyOf(this);
+			return null;
+		}
+
+		/// <summary>
 		/// Returns the formatted code so that it can be applied to the foreground by writing the result of this function to the console. Call <see cref="ToStringBG"/> to get the background format.
 		/// </summary>
 		/// <returns></returns>
 		public override string ToString() {
 			return string.Format("\u001b[38;2;{0};{1};{2}m", R, G, B);
+		}
+
+
+		/// <summary>
+		/// Returns the formatted code so that it can be applied to the foreground.
+		/// </summary>
+		/// <param name="asVT">If false, this will return the result of <see cref="ToStringNonVT"/>. Otherwise, this will return the result of <see cref="ToString"/></param>
+		/// <exception cref="NotSupportedException"/>
+		public string ToString(bool asVT) {
+			return asVT ? ToString() : ToStringNonVT();
 		}
 
 		/// <summary>
@@ -106,8 +129,41 @@ namespace XanBotCore.Logging {
 			return string.Format("\u001b[48;2;{0};{1};{2}m", R, G, B);
 		}
 
+
+		/// <summary>
+		/// A tostring method that uses legacy coloring when translating this ConsoleColorVT to a string. This will throw a <see cref="NotSupportedException"/> if this <see cref="ConsoleColorVT"/> is not using a color possible via stock console colors.
+		/// </summary>
+		/// <returns></returns>
+		/// <exception cref="NotSupportedException"/>
+		public string ToStringNonVT() {
+			if (ConsoleColorMap.Values.Contains(this)) {
+				return "§" + ((Dictionary<byte, ConsoleColor>)XanBotLogger.ConsoleColorMap).KeyOf(AsConsoleColor().Value).ToString("X");
+			}
+			throw new NotSupportedException("This ConsoleColorVT does not have a color identical to a stock Windows console.");
+		}
+
 		public static implicit operator ConsoleColorVT(ConsoleColor src) {
 			return FromConsoleColor(src);
+		}
+
+		public static bool operator ==(ConsoleColorVT alpha, ConsoleColorVT bravo) {
+			if (ReferenceEquals(alpha, null)) return ReferenceEquals(bravo, null);
+			if (ReferenceEquals(bravo, null)) return false;
+			return alpha.Equals(bravo);
+		}
+
+		public static bool operator !=(ConsoleColorVT alpha, ConsoleColorVT bravo) {
+			if (ReferenceEquals(alpha, null)) return !ReferenceEquals(bravo, null);
+			if (ReferenceEquals(bravo, null)) return true;
+			return !alpha.Equals(bravo);
+		}
+
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(obj, null)) return false;
+			if (obj is ConsoleColorVT other) {
+				return (R == other.R) && (G == other.G) && (B == other.B);
+			}
+			return false;
 		}
 	}
 }

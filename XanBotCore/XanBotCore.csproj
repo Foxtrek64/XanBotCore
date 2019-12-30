@@ -58,7 +58,10 @@
     <Compile Include="CommandSystem\Commands\ArchonCommands\ArchonCommandToggleDebugLogging.cs" />
     <Compile Include="CommandSystem\Commands\ArchonCommands\ArchonCommandForcePerms.cs" />
     <Compile Include="CommandSystem\Commands\ArchonCommands\ArchonCommandHelp.cs" />
+    <Compile Include="CommandSystem\Commands\UsagePermissionPacket.cs" />
+    <Compile Include="DataPersistence\ConfigMirror.cs" />
     <Compile Include="Exceptions\MalformedConfigDataException.cs" />
+    <Compile Include="Exceptions\ValueNotFoundException.cs" />
     <Compile Include="Logging\ConsoleColorVT.cs" />
     <Compile Include="Logging\IConsolePrintable.cs" />
     <Compile Include="Permissions\PermissionRegistry.cs" />

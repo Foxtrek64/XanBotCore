@@ -35,7 +35,18 @@ namespace XanBotCore.DataPersistence {
 		/// <summary>
 		/// The underlying path of this <see cref="XFileHandler"/>. This is the directory all files for this handler will go to.
 		/// </summary>
-		public string BasePath { get; private set; }
+		public string BasePath {
+			get {
+				return BasePathInternal;
+			}
+			set {
+				if (!value.EndsWith(@"\")) {
+					value += @"\";
+				}
+				BasePathInternal = value;
+			}
+		}
+		private string BasePathInternal = "";
 
 		/// <summary>
 		/// Construct a new <see cref="XFileHandler"/> in the specified directory and optional tied bot context.
@@ -117,7 +128,7 @@ namespace XanBotCore.DataPersistence {
 		}
 
 		/// <summary>
-		/// Returns an XFileHandler targetting the specified <seealso cref="BotContext"/>. This caches the handler internally.<para/>
+		/// Returns an <see cref="XFileHandler"/> targetting the specified <seealso cref="BotContext"/>. This caches the handler internally.<para/>
 		/// </summary>
 		/// <param name="context">The bot context that this targets. If this is null, it will return <see cref="GLOBAL_HANDLER"/></param>
 		/// <returns></returns>
@@ -138,12 +149,23 @@ namespace XanBotCore.DataPersistence {
 		}
 
 		/// <summary>
-		/// Creates a new XFileHandler targetting a directory inside of <see cref="BOT_FILE_DIR"/>\customdata\
+		/// Creates a new <see cref="XFileHandler"/> targetting a directory inside of <see cref="BOT_FILE_DIR"/>\customdata\<para/>
+		/// This does not cache.
 		/// </summary>
 		/// <param name="name">The name of the directory to create.</param>
 		/// <returns></returns>
 		public static XFileHandler CreateNewHandlerInDataDirectory(string name) {
 			return new XFileHandler(Path.Combine(BOT_FILE_DIR, "customdata", name));
+		}
+
+		/// <summary>
+		/// Creates a new <see cref="XFileHandler"/> in a custom directory.<para/>
+		/// This does not cache.
+		/// </summary>
+		/// <param name="directory">The directory to target.</param>
+		/// <returns></returns>
+		public static XFileHandler CreateNewHandlerInCustomDirectory(DirectoryInfo directory) {
+			return new XFileHandler(directory.FullName);
 		}
 
 		/// <summary>
