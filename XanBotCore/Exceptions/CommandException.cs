@@ -17,7 +17,7 @@ namespace XanBotCore.Exceptions {
 		/// <summary>
 		/// The error message sent by the command.
 		/// </summary>
-		public new string Message { get; }
+		public override string Message { get; }
 
 		/// <summary>
 		/// The command that threw this error.
@@ -49,5 +49,13 @@ namespace XanBotCore.Exceptions {
 			}
 		}
 
+		public CommandException(Command source, Exception subExc, int? expireTimeMilliseconds = null) {
+			Command = source;
+			Message = $"**[{subExc.GetType().FullName} thrown!]** {subExc.Message}";
+			Expires = expireTimeMilliseconds != null;
+			if (Expires) {
+				ExpireTimeMilliseconds = expireTimeMilliseconds.Value;
+			}
+		}
 	}
 }
