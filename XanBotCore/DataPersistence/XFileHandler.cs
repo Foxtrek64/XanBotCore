@@ -116,6 +116,15 @@ namespace XanBotCore.DataPersistence {
 		}
 
 		/// <summary>
+		/// Returns whether or not the specified file exists. The specified path should be relative to <see cref="BasePath"/>.
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns></returns>
+		public bool Exists(string path) {
+			return File.Exists(Path.Combine(BasePath, path));
+		}
+
+		/// <summary>
 		/// Create a directory.
 		/// </summary>
 		/// <param name="path">The path of the file relative to <see cref="BasePath"/>.</param>
