@@ -19,7 +19,7 @@ namespace XanBotCore.UserObjects {
 		/// <summary>
 		/// A cache storing XanBotMembers referenced by user ID for usage in the get function.
 		/// </summary>
-		private static readonly Dictionary<ulong, XanBotMember> XMemberFromDUser = new Dictionary<ulong, XanBotMember>();
+		private static readonly Dictionary<BotContext, Dictionary<ulong, XanBotMember>> XBMCache = new Dictionary<BotContext, Dictionary<ulong, XanBotMember>>();
 
 		/// <summary>
 		/// The underlying DiscordUser of this XanBotMember.
@@ -143,13 +143,8 @@ namespace XanBotCore.UserObjects {
 		/// <returns></returns>
 		public static XanBotMember GetMemberFromUser(DiscordGuild server, DiscordUser user) {
 			if (user == null) return null;
-			if (XMemberFromDUser.TryGetValue(user.Id, out XanBotMember result)) {
-				return result;
-			}
-			BotContext serverCtx = BotContextRegistry.GetContext(server);
-			XanBotMember member = new XanBotMember(serverCtx, user);
-			XMemberFromDUser[user.Id] = member;
-			return member;
+			BotContext ctxForServer = BotContextRegistry.GetContext(server);
+			return GetMemberFromUser(ctxForServer, user);
 		}
 
 		/// <summary>
@@ -160,11 +155,15 @@ namespace XanBotCore.UserObjects {
 		/// <returns></returns>
 		public static XanBotMember GetMemberFromUser(BotContext context, DiscordUser user) {
 			if (user == null) return null;
-			if (XMemberFromDUser.TryGetValue(user.Id, out XanBotMember result)) {
-				return result;
+			if (XBMCache.TryGetValue(context, out Dictionary<ulong, XanBotMember> registry)) {
+				if (registry.TryGetValue(user.Id, out XanBotMember result)) {
+					return result;
+				}
+			} else {
+				XBMCache[context] = new Dictionary<ulong, XanBotMember>();
 			}
 			XanBotMember member = new XanBotMember(context, user);
-			XMemberFromDUser[user.Id] = member;
+			XBMCache[context][member.Id] = member;
 			return member;
 		}
 
