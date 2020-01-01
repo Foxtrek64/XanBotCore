@@ -179,7 +179,7 @@ namespace XanBotCore.Utility.DiscordObjects {
 		}
 
 		/// <summary>
-		/// Create a new ShallowEmoji from an Emoji name;
+		/// Create a new ShallowEmoji from an Emoji name
 		/// </summary>
 		public ShallowDiscordEmoji(string name) {
 			Name = name;
