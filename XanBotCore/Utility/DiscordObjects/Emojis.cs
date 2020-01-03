@@ -168,6 +168,7 @@ namespace XanBotCore.Utility.DiscordObjects {
 		public DiscordEmoji Emoji {
 			get {
 				if (EmojiInternal == null) {
+					XanBotLogger.WriteDebugLine($"ShallowDiscordEmoji instantiating {Name}");
 					DiscordEmoji emoji = DiscordEmoji.FromName(XanBotCoreSystem.Client, Name);
 					EmojiInternal = emoji ?? throw new NullReferenceException("Attempt to create DiscordEmoji from name " + Name + " failed.");
 				}

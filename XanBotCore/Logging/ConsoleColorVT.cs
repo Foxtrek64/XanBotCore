@@ -165,5 +165,13 @@ namespace XanBotCore.Logging {
 			}
 			return false;
 		}
+
+		public override int GetHashCode() {
+			int hash = 13;
+			hash = (hash * 7) ^ R;
+			hash = (hash * 13) + G;
+			hash = (hash * 7) | B;
+			return hash;
+		}
 	}
 }

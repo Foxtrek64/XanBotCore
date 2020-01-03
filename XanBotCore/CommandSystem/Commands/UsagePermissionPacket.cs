@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace XanBotCore.CommandSystem.Commands {
 
 	/// <summary>
-	/// Represents the status of whether or not a user can use a command.
+	/// Represents the status of whether or not a user can use a command, as well as an optional error message to associate with being unable to use the command.
 	/// </summary>
 	public struct UsagePermissionPacket {
 

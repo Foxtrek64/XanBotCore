@@ -13,7 +13,7 @@ namespace XanBotCore.Utility.DiscordObjects {
 	public interface IEmbeddable {
 
 		/// <summary>
-		/// Represent this object in a <see cref="DiscordEmbed"/>
+		/// Represent this object as a <see cref="DiscordEmbed"/>
 		/// </summary>
 		/// <returns></returns>
 		DiscordEmbed ToEmbed();

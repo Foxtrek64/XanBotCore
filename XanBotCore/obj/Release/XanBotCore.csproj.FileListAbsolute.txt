@@ -44,7 +44,7 @@ F:\Users\subzeroshark\source\repos\XanBotCore\XanBotCore\bin\Release\System.Memo
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\XanBotCore.dll
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\XanBotCore.pdb
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Release\System.Buffers.dll
+F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Release\XanBotCore.csprojAssemblyReference.cache
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Release\XanBotCore.csproj.CopyComplete
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Release\XanBotCore.dll
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Release\XanBotCore.pdb
-F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Release\XanBotCore.csprojAssemblyReference.cache

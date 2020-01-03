@@ -38,7 +38,7 @@ namespace XanBotCore.CommandSystem.Commands {
 					}
 					await ResponseUtil.RespondToAsync(originalMessage, string.Format("The permission level of `{0}` is `{1}`", member.FullName, member.PermissionLevel));
 				}
-				catch (NonSingularResultException<XanBotMember> err) {
+				catch (NonSingularResultException err) {
 					string msg = err.Message;
 					msg += "\nThe potential users are:\n";
 					foreach (XanBotMember member in err.PotentialReturnValues) {

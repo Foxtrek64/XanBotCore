@@ -44,21 +44,25 @@ namespace XanBotCore.Utility {
 			if (data.StartsWith("<@") && data.EndsWith(">")) {
 				newdata = data.Substring(2, data.Length - 3);
 			}
-
+			
 			// I don't know if this method is used but it's one Discord supports so I have to support it too.
 			if (data.StartsWith("<@!") && data.EndsWith(">")) {
 				newdata = data.Substring(3, data.Length - 4);
 			}
 
 			if (ulong.TryParse(newdata, out ulong uuid)) {
-				DiscordUser user = await XanBotCoreSystem.Client.GetUserAsync(uuid);
+				try {
+					DiscordUser user = await XanBotCoreSystem.Client.GetUserAsync(uuid);
 
-				// Catch case: Someone's username is a bunch of numbers OR they link a user ID that isn't in the server.
-				if (user != null) {
-					XanBotMember member = XanBotMember.GetMemberFromUser(server, user);
-					if (member != null) {
-						return member;
+					// Catch case: Someone's username is a bunch of numbers OR they link a user ID that isn't in the server.
+					if (user != null) {
+						XanBotMember member = XanBotMember.GetMemberFromUser(server, user);
+						if (member != null) {
+							return member;
+						}
 					}
+				} catch (NotFoundException) {
+					// The person typed in a number, it doesn't correspond to a discord GUID, so we'll catch the NotFoundException and let the code continue.
 				}
 			}
 			List<XanBotMember> potentialReturns = new List<XanBotMember>();
