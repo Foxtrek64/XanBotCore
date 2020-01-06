@@ -29,54 +29,39 @@ namespace XanBotCore.Utility.DiscordObjects {
 			LastCheckedChannelUsers = Channel.Users.ToList();
 
 			XanBotCoreSystem.Client.VoiceStateUpdated += async evt => {
-				DiscordChannel targetChannel = evt.Channel;
-				if (targetChannel == null) {
-					if (evt.Before != null) targetChannel = evt.Before.Channel;
-				}
-				if (targetChannel == null) {
-					if (evt.After != null) targetChannel = evt.After.Channel;
-				}
-				if (targetChannel == null) {
-					XanBotLogger.WriteDebugLine("I don't know what channel to target.");
-					return;
-				}
+				XanBotLogger.WriteDebugLine("Voice state updated.");
+				bool oldHas = false;
+				bool newHas = false;
 
-				if (targetChannel.Id == Channel.Id) {
-					XanBotLogger.WriteDebugLine("Voice state updated for " + targetChannel.Name);
-					bool oldHas = false;
-					bool newHas = false;
+				List<DiscordMember> currentUsers = Channel.Users.ToList();
+				if (!LastCheckedChannelUsers.ContentEquals(currentUsers)) {
+					XanBotLogger.WriteDebugLine("Some member changed.");
+					oldHas = LastCheckedChannelUsers.Contains(evt.User);
+					newHas = currentUsers.Contains(evt.User);
+				}
+				LastCheckedChannelUsers = currentUsers;
 
-					List<DiscordMember> currentUsers = Channel.Users.ToList();
-					if (!LastCheckedChannelUsers.ContentEquals(currentUsers)) {
-						XanBotLogger.WriteDebugLine("Some member changed.");
-						oldHas = LastCheckedChannelUsers.Contains(evt.User);
-						newHas = currentUsers.Contains(evt.User);
+				XanBotLogger.WriteDebugLine("User WAS in channel: " + oldHas);
+				XanBotLogger.WriteDebugLine("User IS in channel: " + newHas);
+				//XanBotLogger.WriteDebugLine("If both are true, then the member likely changed their state e.g. muted/unmuted etc.");
+				//XanBotLogger.WriteDebugLine("If both are false, then the member changed voice channels and wasn't in this one before nor are they coming into this one.");
+				if (oldHas != newHas) {
+					// Something changed...
+					if (!oldHas && newHas) {
+						// User was not here, now they are.
+						try {
+							OnMemberConnected(evt.User);
+							OnMemberConnectionChanged(evt.User, ConnectionType.Connected);
+						} catch { }
+						XanBotLogger.WriteDebugLine("Fired join for " + evt.User.GetFullName());
+					} else {
+						// User was here, now they aren't. Disconnect.
+						try {
+							OnMemberDisconnected(evt.User);
+							OnMemberConnectionChanged(evt.User, ConnectionType.Disconnected);
+						} catch { }
+						XanBotLogger.WriteDebugLine("Fired leave for " + evt.User.GetFullName());
 					}
-					LastCheckedChannelUsers = currentUsers;
-
-					XanBotLogger.WriteDebugLine("User was in old channel representation: " + oldHas);
-					XanBotLogger.WriteDebugLine("User was in new channel representation: " + newHas);
-					XanBotLogger.WriteDebugLine("If both are false, then the member likely changed their state e.g. muted/unmuted etc.");
-					if (oldHas != newHas) {
-						// Something changed...
-						if (!oldHas && newHas) {
-							// User was not here, now they are.
-							try {
-								OnMemberConnected(evt.User);
-								OnMemberConnectionChanged(evt.User, ConnectionType.Connected);
-								XanBotLogger.WriteDebugLine("Fired join for " + evt.User.GetFullName());
-							} catch { }
-						} else {
-							// User was here, now they aren't. Disconnect.
-							try {
-								OnMemberDisconnected(evt.User);
-								OnMemberConnectionChanged(evt.User, ConnectionType.Disconnected);
-								XanBotLogger.WriteDebugLine("Fired leave for " + evt.User.GetFullName());
-							} catch { }
-						}
-					}
-				} else {
-					XanBotLogger.WriteDebugLine("Voice state updated for " + targetChannel.Name + " (was expecting " + Channel.Name + ")");
 				}
 			};
 		}
