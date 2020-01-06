@@ -249,10 +249,23 @@ namespace XanBotCore.Logging {
 		/// Writes errors to the console and plays a beep sound to alert the operator.
 		/// </summary>
 		public static void WriteException(Exception ex) {
-			if (IsVTEnabled) {
-				WriteExceptionVT(ex);
+			WriteException(ex, false);
+		}
+
+		private static void WriteException(Exception ex, bool isFromAggregate) {
+			if (ex is AggregateException agg) {
+				WriteLine("§c[" + agg.GetType().ToString() + " Thrown!] §eInner Exceptions:\n", !isFromAggregate);
+				foreach (Exception sub in agg.InnerExceptions) {
+					WriteException(sub, true);
+				}
+				WriteLine("§c-----------------------------------------------");
 			} else {
-				WriteLine("§c[" + ex.GetType().ToString() + " Thrown!] §e" + ex.Message + "\n§4" + ex.StackTrace + "\n", true);
+				if (IsVTEnabled) {
+					WriteExceptionVT(ex, isFromAggregate);
+					if (!isFromAggregate) Console.Beep();
+				} else {
+					WriteLine("§c[" + ex.GetType().ToString() + " Thrown!] §e" + ex.Message + "\n§4" + ex.StackTrace + "\n", !isFromAggregate);
+				}
 			}
 		}
 
@@ -260,7 +273,7 @@ namespace XanBotCore.Logging {
 		/// Identical to <see cref="WriteException(Exception)"/> but it targets VT mode.
 		/// </summary>
 		/// <param name="ex"></param>
-		private static void WriteExceptionVT(Exception ex) {
+		private static void WriteExceptionVT(Exception ex, bool isFromAggregate = false) {
 			XanBotConsoleCore.BumpIncomingLogTextPre();
 
 			ConsoleColorVT old = ForegroundColor;
@@ -271,7 +284,12 @@ namespace XanBotCore.Logging {
 			// 4 and 24 add and remove underline respectively
 			ConsoleColorVT oldbg = BackgroundColor;
 			BLOOD.ApplyToBackground();
-			string msg = darkYellow + GetFormattedTimestamp() + red + "[\x1b[4m" + YELLA + ex.GetType().ToString() + " Thrown!\x1b[24m" + red + "]: " + ORANGE + ex.Message + "\n" + darkRed + ex.StackTrace + "\n\n";
+			string msg;
+			if (isFromAggregate) {
+				msg = darkYellow + GetFormattedTimestamp() + red + "[\x1b[4m" + YELLA + ex.GetType().ToString() + "\x1b[24m" + red + "]: " + ORANGE + ex.Message + "\n" + darkRed + ex.StackTrace + "\n\n";
+			} else {
+				msg = darkYellow + GetFormattedTimestamp() + red + "[\x1b[4m" + YELLA + ex.GetType().ToString() + " Thrown!\x1b[24m" + red + "]: " + ORANGE + ex.Message + "\n" + darkRed + ex.StackTrace + "\n\n";
+			}
 			WriteMessageFromColorsVT(msg);
 
 			ForegroundColor = old;

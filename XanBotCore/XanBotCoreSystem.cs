@@ -12,6 +12,9 @@ using DSharpPlus.EventArgs;
 using XanBotCore.CommandSystem;
 using XanBotCore.Permissions;
 using System.Threading;
+using DSharpPlus.Entities;
+using XanBotCore.UserObjects;
+using XanBotCore.Utility;
 
 namespace XanBotCore {
 
@@ -43,21 +46,23 @@ namespace XanBotCore {
 			get {
 				return ClientInternal ?? throw new InvalidOperationException("Failed to get Client -- XanBotCoreSystem.Client is null. Did you remember to set this value when you initialized your Discord bot?");
 			}
-			set {
+			private set {
 				ClientInternal = value;
 			}
 		}
 
 		/// <summary>
 		/// The <see cref="VoiceNextExtension"/> of the bot. This allows the bot to connect to voice channels to both send and receive audio.<para/>
-		/// Throws a <see cref="InvalidOperationException"/> if the value for this is referenced before it is set -- It should be initialized immediately with the bot.
+		/// Throws a <see cref="InvalidOperationException"/> if the value for this is referenced before <see cref="Created"/> is true.
 		/// </summary>
 		/// <exception cref="InvalidOperationException"/>
 		public static VoiceNextExtension VoiceClient {
 			get {
-				return VoiceClientInternal ?? throw new InvalidOperationException("Failed to get VoiceClient -- XanBotCoreSystem.VoiceClient is null. Did you remember to set this value when you initialized your Discord bot?");
+				// I do a non-null check since any BotContexts that initialize and get this will error if I don't.
+				if (Created || VoiceClientInternal != null) return VoiceClientInternal;
+				throw new InvalidOperationException("Failed to get VoiceClient -- Cannot get this value before initialization.");
 			}
-			set {
+			private set {
 				VoiceClientInternal = value;
 			}
 		}

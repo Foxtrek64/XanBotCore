@@ -32,13 +32,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DSharpPlus, Version=4.0.0.635, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\XCRBot\packages\DSharpPlus.4.0.0-nightly-00635\lib\net45\DSharpPlus.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\DSharpPlus\DSharpPlus\bin\Debug\net45\DSharpPlus.dll</HintPath>
     </Reference>
     <Reference Include="DSharpPlus.VoiceNext, Version=4.0.0.635, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\XCRBot\packages\DSharpPlus.VoiceNext.4.0.0-nightly-00635\lib\net45\DSharpPlus.VoiceNext.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\DSharpPlus\DSharpPlus.VoiceNext\bin\Debug\net45\DSharpPlus.VoiceNext.dll</HintPath>
     </Reference>
     <Reference Include="DSharpPlus.WebSocket.WebSocket4Net, Version=4.0.0.635, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\XCRBot\packages\DSharpPlus.WebSocket.WebSocket4Net.4.0.0-nightly-00635\lib\net45\DSharpPlus.WebSocket.WebSocket4Net.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\DSharpPlus\DSharpPlus.WebSocket.WebSocket4Net\bin\Debug\net45\DSharpPlus.WebSocket.WebSocket4Net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -67,6 +70,7 @@
     <Compile Include="Permissions\PermissionRegistry.cs" />
     <Compile Include="UserObjects\DiscordUserExtensions.cs" />
     <Compile Include="Utility\DictionaryExtension.cs" />
+    <Compile Include="Utility\DiscordObjects\ChannelConnectionEventContainer.cs" />
     <Compile Include="Utility\DiscordObjects\IEmbeddable.cs" />
     <Compile Include="Utility\DiscordObjects\RoleUtility.cs" />
     <Compile Include="Utility\ListExtensions.cs" />

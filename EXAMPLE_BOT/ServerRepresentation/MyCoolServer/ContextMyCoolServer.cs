@@ -23,11 +23,11 @@ namespace EXAMPLE_BOT.ServerRepresentation.MyCoolServer {
 
 
 		// Optional stuff:
-		public override Command[] ContextSpecificCommands => new Command[] {
+		protected override Command[] ContextSpecificCommands => new Command[] {
 			new CommandSayHello()
 		};
 
-		public override PassiveHandler[] ContextSpecificHandlers => new PassiveHandler[] {
+		protected override PassiveHandler[] ContextSpecificHandlers => new PassiveHandler[] {
 			new HandlerYouCantSayTheNWord()
 		};
 

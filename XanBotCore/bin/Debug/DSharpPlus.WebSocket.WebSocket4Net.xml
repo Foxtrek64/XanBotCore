@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DSharpPlus.WebSocket.WebSocket4Net</name>
+    </assembly>
+    <members>
+        <member name="T:DSharpPlus.Net.WebSocket.WebSocket4NetClient">
+            <summary>
+            A WebSocket4Net-based WebSocket client implementation.
+            </summary>
+        </member>
+        <member name="M:DSharpPlus.Net.WebSocket.WebSocket4NetClient.#ctor(System.Net.IWebProxy)">
+            <summary>
+            Instantiates a new WebSocket client with specified proxy settings.
+            </summary>
+            <param name="proxy">Proxy settings for the client.</param>
+        </member>
+        <member name="M:DSharpPlus.Net.WebSocket.WebSocket4NetClient.ConnectAsync(System.Uri,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})">
+            <summary>
+            Connects to the WebSocket server.
+            </summary>
+            <param name="uri">The URI of the WebSocket server.</param>
+            <param name="customHeaders">Custom headers to send with the request.</param>
+            <returns></returns>
+        </member>
+        <member name="M:DSharpPlus.Net.WebSocket.WebSocket4NetClient.DisconnectAsync(DSharpPlus.EventArgs.SocketCloseEventArgs)">
+            <summary>
+            Disconnects the WebSocket connection.
+            </summary>
+            <param name="e">Disconect event arguments.</param>
+            <returns></returns>
+        </member>
+        <member name="M:DSharpPlus.Net.WebSocket.WebSocket4NetClient.SendMessage(System.String)">
+            <summary>
+            Send a message to the WebSocket server.
+            </summary>
+            <param name="message">The message to send.</param>
+        </member>
+        <member name="M:DSharpPlus.Net.WebSocket.WebSocket4NetClient.OnConnectedAsync">
+            <summary>
+            Set the Action to call when the connection has been established.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DSharpPlus.Net.WebSocket.WebSocket4NetClient.OnDisconnectedAsync(DSharpPlus.EventArgs.SocketCloseEventArgs)">
+            <summary>
+            Set the Action to call when the connection has been terminated.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DSharpPlus.Net.WebSocket.WebSocket4NetClient.CreateNew(System.Net.IWebProxy)">
+            <summary>
+            Creates a new instance of <see cref="T:DSharpPlus.Net.WebSocket.WebSocket4NetClient"/>.
+            </summary>
+            <param name="proxy">Proxy to use for this client instance.</param>
+            <returns>An instance of <see cref="T:DSharpPlus.Net.WebSocket.WebSocket4NetClient"/>.</returns>
+        </member>
+        <member name="E:DSharpPlus.Net.WebSocket.WebSocket4NetClient.Connected">
+            <summary>
+            Triggered when the client connects successfully.
+            </summary>
+        </member>
+        <member name="E:DSharpPlus.Net.WebSocket.WebSocket4NetClient.Disconnected">
+            <summary>
+            Triggered when the client is disconnected.
+            </summary>
+        </member>
+        <member name="E:DSharpPlus.Net.WebSocket.WebSocket4NetClient.MessageReceived">
+            <summary>
+            Triggered when the client receives a message from the remote party.
+            </summary>
+        </member>
+        <member name="E:DSharpPlus.Net.WebSocket.WebSocket4NetClient.Errored">
+            <summary>
+            Triggered when an error occurs in the client.
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -129,7 +129,9 @@ namespace XanBotCore.DataPersistence {
 		}
 
 		public delegate void ConfigValueChanged(BotContext context, string key, string oldValue, string newValue, bool valueJustCreated);
+		public static event ConfigValueChanged OnAnyContextConfigValueChanged;
 		public event ConfigValueChanged OnConfigValueChanged;
+		
 
 		/// <summary>
 		/// Adds a <see cref="ConfigMirror"/> to this <see cref="XConfiguration"/> and mirrors it.
@@ -165,10 +167,16 @@ namespace XanBotCore.DataPersistence {
 			}
 
 			if (BaseHandler != null && BaseHandler.Context != null) {
-				try { OnConfigValueChanged(BaseHandler.Context, key, oldValue, value, oldValue == null && value != null); } catch (Exception) { }
+				try {
+					OnConfigValueChanged(BaseHandler.Context, key, oldValue, value, oldValue == null && value != null);
+					OnAnyContextConfigValueChanged(BaseHandler.Context, key, oldValue, value, oldValue == null && value != null);
+				} catch (Exception) { }
 			}
 			else {
-				try { OnConfigValueChanged(null, key, oldValue, value, (oldValue == null && value != null)); } catch (Exception) { }
+				try {
+					OnConfigValueChanged(null, key, oldValue, value, (oldValue == null && value != null));
+					OnAnyContextConfigValueChanged(null, key, oldValue, value, (oldValue == null && value != null));
+				} catch (Exception) { }
 			}
 			//OnAnyConfigValueChanged(null, key, oldValue, value, false);
 		}
