@@ -100,11 +100,6 @@ namespace XanBotCore.Permissions {
 			if (byte.TryParse(permLvl, out byte perms)) {
 				// Catch case
 				byte returnValue = perms;
-				if (userId == BOT_CREATOR_ID && perms == 255 && !AllowXanInternal) {
-					XanBotLogger.WriteLine($"§4The permission level of the bot's creator for BotContext [{context.Name}] was going to be set to 255 due to its data persistence, but the boolean value allowing this has been disabled. The bot's creator has been set to use the baseline permission level ({DefaultPermissionLevel}) rather than 255.");
-					cfg.SetConfigurationValue(userId.ToString(), DefaultPermissionLevel.ToString());
-					returnValue = DefaultPermissionLevel;
-				}
 
 				if (context.DefaultUserPermissions.TryGetValue(userId, out byte contextPermissionLevel)) {
 					if (contextPermissionLevel == 255)
