@@ -24,23 +24,6 @@ namespace XanBotCore.Permissions {
 		public const ulong BOT_CREATOR_ID = 114163433980559366;
 
 		/// <summary>
-		/// If this is true, the bot's creator will have the maximum permission level, 255. The default value for this parameter is FALSE.<para/>
-		/// Since this is your bot and you should be able to dictate security, this is under a boolean so that you may set it to false if needed.<para/>
-		/// Throws an <see cref="InvalidOperationException"/> if this is set after the bot has been initialized, as the member object may have already been created with the permission level.
-		/// </summary>
-		/// <exception cref="InvalidOperationException"/>
-		public static bool AllowXanMaxPermissionLevel {
-			get {
-				return AllowXanInternal;
-			}
-			set {
-				if (XanBotCoreSystem.Created) throw new InvalidOperationException("Cannot set this value after bot initialization. Set this value before calling XanBotCoreSystem.InitializeBotAsync()");
-				AllowXanInternal = value;
-			}
-		}
-		private static bool AllowXanInternal = false;
-
-		/// <summary>
 		/// The permission level that represents a user who is not a member of the current guild.<para/>
 		/// Usage of this permission constant is optional. It is simply here as a provided standard, not as a mandated value.
 		/// </summary>

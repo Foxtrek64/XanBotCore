@@ -58,9 +58,6 @@ namespace EXAMPLE_BOT {
 		}
 
 		public static async Task MainAsync(string[] args) {
-			PermissionRegistry.AllowXanMaxPermissionLevel = false; // If you're feeling generous, you can set this to true.
-			// Its default value is true, but here I'm setting it to false so that people know they can do that.
-
 			// Start the bot init cycle.
 			// This method as-is creates a voice client (first boolean argument) and says that the bot is targeting Windows 7 (second bool).
 			await XanBotCoreSystem.InitializeBotAsync(BOT_TOKEN, true, true);
