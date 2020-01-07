@@ -37,4 +37,3 @@ F:\Users\Xan\source\repos\XanBotCore\XanBotCore\bin\Debug\DSharpPlus.WebSocket.W
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Debug\XanBotCore.csproj.CopyComplete
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Debug\XanBotCore.dll
 F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Debug\XanBotCore.pdb
-F:\Users\Xan\source\repos\XanBotCore\XanBotCore\obj\Debug\XanBotCore.csprojAssemblyReference.cache
